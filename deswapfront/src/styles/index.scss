@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./global.scss";
+
+.bg {
+  background-color: $gray1;
+  // background-image:
+  //     radial-gradient(at 0% 100%, rgba(red($green1), green($green1), blue($green1), 0.3) 0, transparent 20%),
+  //     radial-gradient(at 90% 100%, rgba(red($yellow), green($yellow), blue($yellow), 0.3) 0, transparent 50%),
+  //     radial-gradient(at 55% 10%, rgba(red($green1), green($green1), blue($green1), 0.2) 0, transparent 40%),
+  //     radial-gradient(at 25% 50%, rgba(red($yellow), green($yellow), blue($yellow), 0.3) 0, transparent 50%);
+}
+
+.connectButton {
+  --button_radius: 0.75em;
+  --button_color: #EEEEEE; // $white2
+  --button_outline_color: #cc2500; // Ajustado a tu color preferido
+  font-weight: 700;
+  border: none;
+  border-radius: var(--button_radius);
+  padding: 0.75em 1.5em;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  span {
+    box-sizing: border-box;
+    border: 1px solid var(--button_outline_color); // Borde ajustado
+    border-radius: var(--button_radius);
+    background: var(--button_color);
+    color: var(--button_outline_color);
+    font-size: 0.9rem;
+    padding: 0.75em 1.5em; // Ajuste de padding para igualar el estilo
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #dcdcdc; // Ajusta este color al tono claro que prefieras
+    }
+  }
+
+  &:hover span {
+    background: #dcdcdc; // Ajusta este color al tono claro que prefieras
+  }
+}
