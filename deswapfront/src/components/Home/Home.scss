@@ -1,0 +1,62 @@
+.title {
+    background: linear-gradient(180deg, #065c6c, rgb(60, 126, 196), rgb(60, 126, 196), #065c6c);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.content .left {
+    animation: scrollTop 15s linear infinite;
+}
+
+.content .right {
+    animation: scrollBottom 15s linear infinite;
+}
+
+.top{
+    animation: scrollLeft 15s linear infinite;
+}
+
+.bottom{
+    animation: scrollRight 15s linear infinite;
+}
+
+@keyframes scrollLeft {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(-101%, 0);
+    }
+}
+
+@keyframes scrollRight {
+    0% {
+        transform: translate(0%, 0);
+    }
+
+    100% {
+        transform: translate(101%, 0);
+    }
+}
+
+@keyframes scrollTop {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(0, -101%);
+    }
+}
+
+@keyframes scrollBottom {
+    0% {
+        transform: translate(0, -101%);
+    }
+
+    100% {
+        transform: translate(0, 0%);
+    }
+}
