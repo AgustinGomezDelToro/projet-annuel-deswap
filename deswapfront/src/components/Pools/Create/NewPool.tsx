@@ -27,7 +27,7 @@ const NewPool = () => {
     };
 
     return (
-        <div className="bg-customLight min-h-screen flex items-center justify-center">
+        <div className="bg-colors-gray1">
             {shows[0] && <TokenPopup setToken={setToken1} close={() => setShows([false, false])} />}
             {shows[1] && <TokenPopup setToken={setToken2} close={() => setShows([false, false])} />}
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center p-8">
@@ -99,7 +99,7 @@ const NewPool = () => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
