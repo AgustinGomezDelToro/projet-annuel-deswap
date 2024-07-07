@@ -24,9 +24,7 @@ const Dashboard: React.FC = () => {
                     </Link>
                 </BounceCard>
                 <BounceCard>
-                    {/*<Link to="/Fees">
                         <CardTitle>Fees</CardTitle>
-                    </Link>*/}
                 </BounceCard>
                 <BounceCard>
                     <Link to="/Admins">

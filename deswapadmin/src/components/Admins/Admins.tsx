@@ -50,13 +50,13 @@ const Admins = () => {
 
     return (
         <section className="mx-auto max-w-7xl px-4 py-8 text-colors-black1">
-            <Title Text="Admins" />
+            <Title Text="Users" />
             <div className="w-full flex justify-between items-center px-8">
-                {/*<p>Safe address : {cropAddress(accountAddress!)}</p>
+                <p>Safe address : {cropAddress(accountAddress!)}</p>
                 <div className="relative w-full max-w-xs">
                     <input type="text" placeholder="Search" className="w-full px-3 py-3 text-sm text-gray-700 placeholder-gray-500 bg-gray-100 border border-gray-400 rounded-lg focus:outline-none focus:ring-none" />
                     <svg className="absolute top-1/2 right-3 transform -translate-y-1/2 w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                </div>*/}
+                </div>
             </div>
             <div className="flex flex-col mt-6">
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
