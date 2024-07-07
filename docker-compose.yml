@@ -1,0 +1,79 @@
+version: "3.9"
+services:
+  backend:
+    build:
+      context: ./deswapbackend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: deswap
+      DB_USER: postgres
+      DB_PASSWORD: root
+    restart: always
+
+
+  frontend:
+    build:
+      context: ./deswapfront
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://backend:8080
+      - REACT_APP_SAFE_ADDRESS=0x84A1a6E9e12949C3DB54922076D6eAB02e58aD40
+      - REACT_APP_RPC_URL=https://sepolia.infura.io/v3/9eb78f13dc39478f8dc68f8ac3a571da
+      - REACT_APP_FACTORY_ADDRESS=
+      - REACT_APP_PINATA_API_KEY=bf920dd6d6768a24bf89
+      - REACT_APP_PINATA_API_SECRET=ed49bcd969360148fe7efc618914c74245f156402f7a4aab93930be90146f225
+      - REACT_APP_ETHERSCAN_API_KEY=XTKX8DZ2BQV56CBZBG3HJTAC5UCYCUTH7A
+
+  admin:
+    build:
+      context: ./deswapadmin
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://backend:8080
+      - REACT_APP_SAFE_ADDRESS=0x84A1a6E9e12949C3DB54922076D6eAB02e58aD40
+      - REACT_APP_RPC_URL=https://sepolia.infura.io/v3/9eb78f13dc39478f8dc68f8ac3a571da
+      - REACT_APP_FACTORY_ADDRESS=
+      - REACT_APP_PINATA_API_KEY=bf920dd6d6768a24bf89
+      - REACT_APP_PINATA_API_SECRET=ed49bcd969360148fe7efc618914c74245f156402f7a4aab93930be90146f225
+      - REACT_APP_ETHERSCAN_API_KEY=XTKX8DZ2BQV56CBZBG3HJTAC5UCYCUTH7A
+
+  database:
+    image: postgres:15.4-alpine
+    platform: linux/amd64
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME:-deswap}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    platform: linux/amd64
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@example.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin4admin
+    ports:
+      - "80:80"
+
