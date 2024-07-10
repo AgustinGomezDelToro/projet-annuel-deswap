@@ -1,71 +1,51 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "time"
-    "deswapbackend/controllers"
-    "deswapbackend/database"
-    "github.com/gofiber/fiber/v2"
-    "github.com/gofiber/fiber/v2/log"
-    log.Info("Server started on port 8080")
-    app.Listen(":8080")
+	"deswapbackend/config"
+	"deswapbackend/controllers"
+	"deswapbackend/database"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-
-	setLog()
-	log.Info("Starting server...")
-
-	app := fiber.New(fiber.Config{})
-	config := NewConfig()
+	app := fiber.New()
 
 	// Middleware CORS pour autoriser toutes les adresses IP
-	app.Use(func(c *fiber.Ctx) error {
-		// Si la requête est une requête preflight (OPTIONS), retourner une réponse immédiatement avec les en-têtes CORS appropriés
-		if c.Method() == fiber.MethodOptions {
-			c.Set("Access-Control-Allow-Origin", "*")
-			c.Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
-			c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-			return c.SendStatus(fiber.StatusOK)
-		}
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
-		// Sinon, continuer à traiter les autres types de requêtes en définissant les en-têtes CORS normalement
-		c.Set("Access-Control-Allow-Origin", "*")
-		c.Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
-		c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-		return c.Next()
-	})
+	// Charger la configuration et connecter la base de données
+	cfg := config.LoadConfig()
+	database.ConnectDatabase(cfg)
 
-	db.ConnectDatabase(config.DbHost, config.DbUser, config.DbPassword, config.DbName, config.DbPort)
+	// Configurer les routes pour les utilisateurs
+	app.Get("/users", controllers.GetAllUsers)
+	app.Post("/users/add", controllers.AddUser)
+	app.Put("/users/update", controllers.UpdateUser)
+	app.Get("/users/:publicKey", controllers.GetUserByPK)
 
-	app.Route("/users", func(api fiber.Router) {
-		api.Get("/", controllers.GetAllUsers).Name("getAll")
-		api.Post("/add", controllers.AddUser).Name("add")
-		api.Put("/update", controllers.UpdateUser).Name("update")
-		api.Get("/getByPK/:publicKey", controllers.GetUserByPK).Name("getByPK")
-	})
+	// Routes d'administration pour les utilisateurs
+	app.Put("/admin/users/ban/:publicKey", controllers.BanUser)
+	app.Put("/admin/users/unban/:publicKey", controllers.UnbanUser)
+	app.Put("/admin/users/promote/:publicKey", controllers.PromoteAdmin)
 
-	app.Route("/tokens", func(api fiber.Router) {
-		api.Get("/", controllers.GetAllTokens).Name("getAll")
-		api.Get("/getByAddress/:address", controllers.GetByAddress).Name("getByAddress")
-		api.Post("/add", controllers.AddToken).Name("add")
-		api.Put("/update", controllers.UpdateToken).Name("update")
-		api.Delete("/delete/:token", controllers.DeleteToken).Name("delete")
-	})
+	// Configurer les routes pour les tokens
+	app.Get("/tokens", controllers.GetAllTokens)
+	app.Post("/tokens/add", controllers.AddToken)
+	app.Put("/tokens/update", controllers.UpdateToken)
+	app.Get("/tokens/:address", controllers.GetByAddress)
+	app.Delete("/tokens/:address", controllers.DeleteToken)
+
+	// Configurer les routes pour l'historique
+	app.Get("/histories", controllers.GetAllHistories)
+	app.Post("/histories/add", controllers.AddHistory)
+	app.Get("/histories/user/:userID", controllers.GetHistoriesByUser)
 
 	log.Info("Server started on port 3001")
 	app.Listen(":3001")
-
-}
-
-func setLog() {
-	fmt.Println("setLog: ", time.Now().UTC().Format("2006-01-02"))
-	logFileName := fmt.Sprintf("logs/log-%s.log", time.Now().UTC().Format("2006-01-02"))
-	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666) // 0666 = CHMOD
-	if err != nil {
-		log.Panic("setLog: ", err)
-		return
-	}
-	log.SetOutput(file) // changer l'outpout pour dire qu'on print plus dans la console mais dans le fichier
 }
