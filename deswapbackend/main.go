@@ -28,11 +28,12 @@ func main() {
 	app.Post("/users/add", controllers.AddUser)
 	app.Put("/users/update", controllers.UpdateUser)
 	app.Get("/users/:publicKey", controllers.GetUserByPK)
+	app.Delete("/users/:publicKey", controllers.DeleteUser)
 
 	// Routes d'administration pour les utilisateurs
 	app.Put("/admin/users/ban/:publicKey", controllers.BanUser)
 	app.Put("/admin/users/unban/:publicKey", controllers.UnbanUser)
-	app.Put("/admin/users/promote/:publicKey", controllers.PromoteAdmin)
+	app.Put("/admin/users/promote/:publicKey", controllers.PromoteUser)
 
 	// Configurer les routes pour les tokens
 	app.Get("/tokens", controllers.GetAllTokens)

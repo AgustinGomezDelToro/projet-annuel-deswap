@@ -9,7 +9,9 @@ import (
 
 func GetAllUsers(c *fiber.Ctx) error {
 	var users []models.User
-	database.DB.Find(&users)
+	if result := database.DB.Find(&users); result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error fetching users"})
+	}
 	return c.JSON(users)
 }
 
@@ -40,4 +42,12 @@ func GetUserByPK(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 	return c.JSON(user)
+}
+
+func DeleteUser(c *fiber.Ctx) error {
+	publicKey := c.Params("publicKey")
+	if result := database.DB.Where("public_key = ?", publicKey).Delete(&models.User{}); result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": result.Error.Error()})
+	}
+	return c.SendStatus(fiber.StatusNoContent)
 }

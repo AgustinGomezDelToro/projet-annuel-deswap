@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import Title from "../Title/Title";
 import { IUser } from "../../interfaces/Users";
-import User from "../../services/User";
 import { cropAddress } from "../../asset/utils/cropAddress";
 import StackedNotifications from "../Notifications/Notifications";
 import { SafeContext } from "../../asset/hooks/safe";
@@ -22,10 +21,16 @@ const Users = () => {
 
     async function fetchDatas() {
         try {
-            const users: IUser[] = await new User().getAll();
-            setUsers(users.filter((user) => user.role !== "admin"));
+            console.log("Fetching users...");
+            const response = await fetch("http://localhost:3001/users");
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const users: IUser[] = await response.json();
+            setUsers(users);
+            console.log("Users fetched:", users);
         } catch (e) {
-            console.error(e);
+            console.error("Failed to fetch users:", e);
         }
     }
 
@@ -43,22 +48,39 @@ const Users = () => {
             return;
         }
 
-        switch (actionActive) {
-            case ActionType.ban:
-                await new User().update({ ...userSelected, status: "ban" });
-                setNotification(true);
-                break;
-            case ActionType.upgrade:
-                await addAdmin({ ownerAddress: userSelected?.public_key });
-                await new User().update({ ...userSelected, role: "pending" });
-                setNotification(true);
-                break;
-            case ActionType.unban:
-                await new User().update({ ...userSelected, status: "active" });
-                setNotification(true);
-                break;
+        try {
+            let url = '';
+            let method = 'PUT'; // Changer la méthode à PUT
+
+            switch (actionActive) {
+                case ActionType.ban:
+                    url = `http://localhost:3001/admin/users/ban/${userSelected.public_key}`;
+                    break;
+                case ActionType.upgrade:
+                    url = `http://localhost:3001/admin/users/promote/${userSelected.public_key}`;
+                    break;
+                case ActionType.unban:
+                    url = `http://localhost:3001/admin/users/unban/${userSelected.public_key}`;
+                    break;
+            }
+
+            console.log("Performing action:", actionActive, "on user:", userSelected.public_key);
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to perform action");
+            }
+
+            setNotification(true);
+            fetchDatas();
+        } catch (e) {
+            console.error("Failed to perform action:", e);
         }
-        fetchDatas();
     }
 
     useEffect(() => {
@@ -81,7 +103,6 @@ const Users = () => {
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
                         <div className="overflow-hidden border border-gray-200 md:rounded-lg">
-
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
@@ -90,17 +111,13 @@ const Users = () => {
                                                 <span>#ID</span>
                                             </button>
                                         </th>
-
                                         <th scope="col" className="px-12 py-3.5 text-sm font-normal text-gray-500 text-center">
                                             Public key
                                         </th>
-
                                         <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">
                                             Signature
                                         </th>
-
                                         <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">Status</th>
-
                                         <th scope="col" className="relative py-3.5 px-4">
                                             <span className="sr-only">Edit</span>
                                         </th>
@@ -122,43 +139,59 @@ const Users = () => {
                                                     <h4 className="text-gray-700">{cropAddress(user.signature)}</h4>
                                                 </div>
                                             </td>
-
                                             <td className="px-4 py-4 text-sm whitespace-nowrap text-center">
-                                                {user.status === "active" ?
+                                                {user.is_banned ?
+                                                    <div className="inline px-3 py-1 text-sm font-normal rounded-full text-red-500 gap-x-2 bg-red-100/60">
+                                                        Banned
+                                                    </div>
+                                                    :
                                                     <div className="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60">
                                                         Active
                                                     </div>
-                                                    :
-                                                    <div className="inline px-3 py-1 text-sm font-normal rounded-full text-red-500 gap-x-2 bg-red-100/60">
-                                                        Ban
-                                                    </div>
                                                 }
                                             </td>
-
                                             <td className="px-4 py-4 space-x-2 text-sm text-right whitespace-nowrap">
-                                                {user.status === "active" ?
+                                                {user.is_banned ?
+                                                    <button onClick={() => action(user, ActionType.unban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-emerald-400 hover:bg-emerald-500 focus:outline-none">
+                                                        Unban
+                                                    </button>
+                                                    :
                                                     <>
-                                                        <button disabled={user.role === "pending"} onClick={() => action(user, ActionType.ban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-red-400 hover:bg-red-500 focus:outline-none">
-                                                            Ban
-                                                        </button>
+                                                        {!user.is_admin && (
+                                                            <button onClick={() => action(user, ActionType.ban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-red-400 hover:bg-red-500 focus:outline-none">
+                                                                Ban
+                                                            </button>
+                                                        )}
                                                         {user.role === "pending" ?
                                                             <Link to={"/Pending"} className="px-2 py-1.5 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
                                                                 Upgrade requested
                                                             </Link>
                                                             :
-                                                            <button onClick={() => action(user, ActionType.upgrade)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
-                                                                Upgrade to Admin
-                                                            </button>
+                                                            !user.is_admin && (
+                                                                <button onClick={() => action(user, ActionType.upgrade)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
+                                                                    Upgrade to Admin
+                                                                </button>
+                                                            )
                                                         }
                                                     </>
-                                                    :
-                                                    <button onClick={() => action(user, ActionType.unban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-emerald-400 hover:bg-emerald-500 focus:outline-none">
-                                                        Unban
-                                                    </button>
                                                 }
                                             </td>
                                         </tr>
                                     ))}
+                                    {users === null && (
+                                        <tr>
+                                            <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
+                                                Loading users...
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {users && users.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
+                                                No users found.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -168,11 +201,9 @@ const Users = () => {
             {actionActive !== null &&
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 rounded-2xl border border-blue-100 bg-white p-4 shadow-lg sm:p-6 lg:p-8" role="alert">
                     <p className="font-medium sm:text-lg">Are you sure you want to {actionActive} this user ?</p>
-
                     <p className="mt-4 text-gray-500">
                         User's public key : {userSelected?.public_key}
                     </p>
-
                     <div className="mt-6 sm:flex sm:gap-4">
                         <button
                             className="inline-block w-full rounded-lg bg-colors-black1 px-5 py-3 text-center text-sm font-semibold text-white sm:w-auto"
@@ -180,7 +211,6 @@ const Users = () => {
                         >
                             Validate
                         </button>
-
                         <button
                             className="mt-2 inline-block w-full rounded-lg bg-gray-100 px-5 py-3 text-center text-sm font-semibold text-gray-600 sm:mt-0 sm:w-auto"
                             onClick={() => setActionActive(null)}

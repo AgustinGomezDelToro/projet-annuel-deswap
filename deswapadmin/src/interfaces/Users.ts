@@ -3,5 +3,7 @@ export interface IUser {
     public_key: string,
     signature: string,
     role: string,
-    status: string
+    status: string,
+    is_banned: boolean,
+    is_admin: boolean
 }
