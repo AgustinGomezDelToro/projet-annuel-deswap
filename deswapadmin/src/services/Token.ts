@@ -1,23 +1,51 @@
-import axios from "axios";
+// services/Token.ts
+import { IToken } from "../interfaces/Tokens";
 
-class Token {
-    getAll = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/tokens/`);
-        return response.data;
+class TokenService {
+    private baseUrl = "http://localhost:3001/tokens";
+
+    async getAll(): Promise<IToken[]> {
+        const response = await fetch(this.baseUrl);
+        if (!response.ok) {
+            throw new Error("Failed to fetch tokens");
+        }
+        return await response.json();
     }
 
-    create = async (name: string, symbole: string, address: string, logo: string, price: number) => {
-        const response = await axios.post(
-            `${process.env.REACT_APP_API_URL}/tokens/add`,
-            { name, symbole, price, logo, address }
-        );
-        return response.data;
+    async create(name: string, symbole: string, price: number, address: string, logo: string, pools: string, trades: number): Promise<void> {
+        const response = await fetch(`${this.baseUrl}/add`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, symbole, price, address, logo, pools, trades }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to create token");
+        }
     }
 
-    delete = async (id: number) => {
-        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/tokens/delete/${id}`);
-        return response.data;
+    async update(id: number, name: string, symbole: string, price: number, address: string, logo: string, pools: string, trades: number): Promise<void> {
+        const response = await fetch(`${this.baseUrl}/update`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id, name, symbole, price, address, logo, pools, trades }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to update token");
+        }
+    }
+
+    async delete(address: string): Promise<void> {
+        const response = await fetch(`${this.baseUrl}/${address}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) {
+            throw new Error("Failed to delete token");
+        }
     }
 }
 
-export default Token;
+export default TokenService;
