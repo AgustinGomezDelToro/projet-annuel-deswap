@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract StakingContract {
     IERC20 public stakingToken;
     address public feeCollector;
-    uint256 public rewardRate = 100; // Simplified fixed reward rate for example
+    uint256 public rewardRate = 100;
     uint256 public feeRate = 1; // Fee rate as a percentage
 
     mapping(address => uint256) public stakingBalance;
