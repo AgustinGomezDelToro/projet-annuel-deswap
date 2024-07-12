@@ -43,20 +43,25 @@ function App() {
   const { isAdmin, setIsAdmin } = useContext(AdminContext);
 
   return (
-          <div className="bg-colors-green1 w-full h-screen flex">
-            <Navbar />
-            <div className='w-5/6 h-screen overflow-y-scroll overflow-x-hidden'>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/users" element={<Users />} />
-                <Route path="/tokens" element={<Tokens />} />
-                <Route path="/fees" element={<div />} />
-                <Route path="/admins" element={<Admins />} />
-                <Route path="/pending" element={<PendingTx />} />
-              </Routes>
-            </div>
+    !isAdmin && !isConnected ?
+        <div className='bg-colors-gray1 h-screen flex items-center justify-center'>
+          <ConnectButton />
+        </div>
+        :
+    <div className="bg-colors-green1 w-full h-screen flex">
+          <Navbar />
+          <div className='w-5/6 h-screen overflow-y-scroll overflow-x-hidden'>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/tokens" element={<Tokens />} />
+              <Route path="/fees" element={<div />} />
+              <Route path="/admins" element={<Admins />} />
+              <Route path="/pending" element={<PendingTx />} />
+            </Routes>
           </div>
-  );
+        </div>
+);
 }
 
 export default App;
