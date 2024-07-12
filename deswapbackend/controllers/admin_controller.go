@@ -29,12 +29,13 @@ func UnbanUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func PromoteAdmin(c *fiber.Ctx) error {
+func PromoteUser(c *fiber.Ctx) error {
 	publicKey := c.Params("publicKey")
 	var user models.User
 	if result := database.DB.Where("public_key = ?", publicKey).First(&user); result.Error != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
+	user.IsAdmin = true
 	user.Role = "admin"
 	database.DB.Save(&user)
 	return c.JSON(user)

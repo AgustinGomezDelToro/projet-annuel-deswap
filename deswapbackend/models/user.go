@@ -18,5 +18,6 @@ type User struct {
 	LastName             string    `json:"last_name"`
 	Birthdate            time.Time `json:"birthdate"`
 	IsBanned             bool      `json:"is_banned"`
+	IsAdmin              bool      `json:"is_admin"`
 	NumberOfTransactions int       `json:"number_of_transactions"`
 }
