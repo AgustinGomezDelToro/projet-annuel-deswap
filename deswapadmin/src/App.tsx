@@ -5,6 +5,7 @@ import Navbar from './components/Navbar/Navbar';
 import Users from './components/Users/Users';
 import Admins from './components/Admins/Admins';
 import Fee from './components/Fee/Fee';
+import SmartContract from './components/Smartcontract/Smartcontract';
 import { createWeb3Modal, defaultConfig, useWeb3ModalAccount } from '@web3modal/ethers/react';
 import ConnectButton from './asset/hooks/connectWallet';
 import { useContext } from 'react';
@@ -59,6 +60,7 @@ function App() {
               <Route path="/fees" element={<Fee />} />
               <Route path="/admins" element={<Admins />} />
               <Route path="/pending" element={<PendingTx />} />
+              <Route path="/smartcontract" element={<SmartContract />} />
             </Routes>
           </div>
         </div>

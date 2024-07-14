@@ -39,7 +39,7 @@ const Navbar = () => {
             <svg className='w-5 h-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> <path d="M2.5 2v6h6M21.5 22v-6h-6" /><path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2" /></svg>
             <span className="pl-4">Pending txs</span>
           </Link>
-          <Link to ="/Smarcontract" className={pathname === '/Smartcontract' ? activeLinkClass : linkClass}>
+          <Link to ="/Smartcontract" className={pathname === '/Smartcontract' ? activeLinkClass : linkClass}>
           <svg className='w-5 h-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" /><path d="M7 2v20M17 22V2" /></svg>
           <span className="pl-4">Smart Contract</span>
           </Link>
