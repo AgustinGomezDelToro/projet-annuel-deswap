@@ -8,7 +8,7 @@ interface CustomLineChartProps {
 const CustomLineChart: React.FC<CustomLineChartProps> = ({ data }) => {
     return (
         <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-semibold text-center mb-4">Utilisation depuis son lancement</h2>
+            <h2 className="text-2xl font-semibold text-center mb-4">Transaction Values Over Time</h2>
             <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />

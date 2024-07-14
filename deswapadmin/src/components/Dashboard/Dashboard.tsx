@@ -1,52 +1,14 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Title from "../Title/Title";
 import TransactionsList from "./TransactionsList";
 import CustomLineChart from "./LineChart";
 import '../../../src/index.css';
-import axios from 'axios';
-import { formatEther } from 'ethers'; // Importer les utils spécifiques
-
-interface Transaction {
-    hash: string;
-    timeStamp: string;
-    from: string;
-    to: string;
-    value: string;
-    isError: string;
-}
 
 const Dashboard: React.FC = () => {
     const address = "0x351024A4EC50612C8D1CF70cd508F77f37Da53F8";
-    const [transactionData, setTransactionData] = useState<Transaction[]>([]);
     const [chartData, setChartData] = useState<{ name: string, value: number }[]>([]);
-
-    const apiKey = process.env.REACT_APP_ETHERSCAN_API_KEY;
-    const apiUrl = `https://api-sepolia.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
-
-    useEffect(() => {
-        const fetchTransactions = async () => {
-            try {
-                const response = await axios.get(apiUrl);
-                if (response.data.status === '1') {
-                    const fetchedTransactions = response.data.result.reverse();
-                    setTransactionData(fetchedTransactions);
-                    const formattedData = fetchedTransactions.map((tx: Transaction, index: number) => ({
-                        name: `Tx ${index + 1}`,
-                        value: parseFloat(formatEther(tx.value))
-                    }));
-                    setChartData(formattedData);
-                } else {
-                    console.error('Error fetching transactions:', response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching transactions:', error);
-            }
-        };
-
-        fetchTransactions();
-    }, [apiUrl]);
 
     const handleFilter = (filteredData: { name: string, value: number }[]) => {
         setChartData(filteredData);
