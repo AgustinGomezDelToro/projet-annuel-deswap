@@ -13,9 +13,10 @@ interface Transaction {
 
 interface TransactionsListProps {
     address: string;
+    onFilter: (filteredData: { name: string, value: number }[]) => void; // Ajouter une prop pour passer les données filtrées
 }
 
-const TransactionsList: React.FC<TransactionsListProps> = ({ address }) => {
+const TransactionsList: React.FC<TransactionsListProps> = ({ address, onFilter }) => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -42,6 +43,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ address }) => {
 
         fetchTransactions();
     }, [address, apiUrl]);
+
+    useEffect(() => {
+        const formattedData = filteredTransactions.map((tx, index) => ({
+            name: `Tx ${index + 1}`,
+            value: parseFloat(formatEther(tx.value)),
+        }));
+        onFilter(formattedData); // Passer les données filtrées au composant parent
+    }, [filteredTransactions, onFilter]);
 
     const indexOfLastTransaction = currentPage * transactionsPerPage;
     const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
