@@ -20,7 +20,7 @@ func ConnectDatabase(cfg config.Config) {
 		log.Fatal("Failed to connect to database: ", err)
 	}
 
-	database.AutoMigrate(&models.User{}, &models.Token{}, &models.History{})
+	database.AutoMigrate(&models.User{}, &models.Token{}, &models.History{}, &models.Fee{})
 
 	DB = database
 }
