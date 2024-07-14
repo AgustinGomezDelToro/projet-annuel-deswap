@@ -7,9 +7,9 @@ import (
 const (
 	defaultDbHost     = "localhost"
 	defaultDbPort     = "5432"
-	defaultDbName     = "deswapdb"
+	defaultDbName     = "deswap"
 	defaultDbUser     = "postgres"
-	defaultDbPassword = "azerty"
+	defaultDbPassword = "root"
 )
 
 type Config struct {

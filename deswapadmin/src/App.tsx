@@ -9,7 +9,7 @@ import SmartContract from './components/Smartcontract/Smartcontract';
 import { createWeb3Modal, defaultConfig, useWeb3ModalAccount } from '@web3modal/ethers/react';
 import ConnectButton from './asset/hooks/connectWallet';
 import { useContext } from 'react';
-import { AdminContext } from './asset/hooks/isAdmin';
+import { AdminContext, AdminContextProvider } from './asset/hooks/isAdmin';
 import PendingTx from './components/PendingTx/PendingTx';
 import Tokens from './components/Tokens/Tokens';
 
@@ -42,29 +42,33 @@ createWeb3Modal({
 
 function App() {
   const { isConnected } = useWeb3ModalAccount();
-  const { isAdmin, setIsAdmin } = useContext(AdminContext);
+  const { isAdmin } = useContext(AdminContext);
 
   return (
-    !isAdmin && !isConnected ?
-        <div className='bg-colors-gray1 h-screen flex items-center justify-center'>
-          <ConnectButton />
-        </div>
-        :
-    <div className="bg-colors-green1 w-full h-screen flex">
-          <Navbar />
-          <div className='w-5/6 h-screen overflow-y-scroll overflow-x-hidden'>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/tokens" element={<Tokens />} />
-              <Route path="/fees" element={<Fee />} />
-              <Route path="/admins" element={<Admins />} />
-              <Route path="/pending" element={<PendingTx />} />
-              <Route path="/smartcontract" element={<SmartContract />} />
-            </Routes>
-          </div>
-        </div>
-);
+      <AdminContextProvider>
+        {
+          !isAdmin && !isConnected ?
+              <div className='bg-colors-gray1 h-screen flex items-center justify-center'>
+                <ConnectButton />
+              </div>
+              :
+              <div className="bg-colors-green1 w-full h-screen flex">
+                <Navbar />
+                <div className='w-5/6 h-screen overflow-y-scroll overflow-x-hidden'>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/tokens" element={<Tokens />} />
+                    <Route path="/fees" element={<Fee />} />
+                    <Route path="/admins" element={<Admins />} />
+                    <Route path="/pending" element={<PendingTx />} />
+                    <Route path="/smartcontract" element={<SmartContract />} />
+                  </Routes>
+                </div>
+              </div>
+        }
+      </AdminContextProvider>
+  );
 }
 
 export default App;

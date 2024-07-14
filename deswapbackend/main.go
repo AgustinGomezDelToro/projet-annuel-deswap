@@ -35,6 +35,10 @@ func main() {
 	app.Put("/admin/users/unban/:publicKey", controllers.UnbanUser)
 	app.Put("/admin/users/promote/:publicKey", controllers.PromoteUser)
 
+   // verifier si un utilisateur est admin
+    app.Get("/isAdmin/:publicKey", controllers.IsAdmin)
+
+
 	// Configurer les routes pour les tokens
 	app.Get("/tokens", controllers.GetAllTokens)
 	app.Post("/tokens/add", controllers.AddToken)

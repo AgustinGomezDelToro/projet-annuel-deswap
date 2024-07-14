@@ -1,11 +1,11 @@
 import { BrowserProvider, ethers } from 'ethers';
 import { useDisconnect, useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider } from '@web3modal/ethers/react';
 import { useContext, useEffect } from 'react';
-import User from '../../services/User';
+import axios from 'axios';
 import { motion } from "framer-motion";
 import { AdminContext } from './isAdmin';
 
-export default function ConnectButton(){
+export default function ConnectButton() {
     const { open } = useWeb3Modal();
     const { address, isConnected } = useWeb3ModalAccount();
     const { walletProvider } = useWeb3ModalProvider();
@@ -21,15 +21,15 @@ export default function ConnectButton(){
                 const now = new Date();
                 const message = `By signing this message, I allow the DeSwap App to save your public key.\n\nNonce: ${randomBytes} - ${now.toISOString()}`;
                 const signer = await provider.getSigner();
-                const signature = await signer?.signMessage(message);
+                const signature = await signer.signMessage(message);
                 if (signature) {
                     try {
-                        const user = await new User().getOneByPublicKey(address);
-                        if (user.role !== "admin") {
+                        const response = await axios.get(`${process.env.REACT_APP_API_URL}/isAdmin/${address}`);
+                        if (response.data.message === "User is an admin") {
+                            setIsAdmin(true);
+                        } else {
                             disconnect();
-                            return;
                         }
-                        setIsAdmin(true);
                     } catch (error) {
                         disconnect();
                         console.log(error);
@@ -40,6 +40,7 @@ export default function ConnectButton(){
                 console.log(error);
             }
         }
+
         if (isConnected && !isAdmin) {
             signedMessage();
         }
