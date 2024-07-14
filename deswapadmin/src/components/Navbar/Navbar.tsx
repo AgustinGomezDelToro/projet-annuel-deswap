@@ -27,7 +27,7 @@ const Navbar = () => {
             <svg className='w-5 h-5 border group-hover:border-white rounded-full p-0.5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             <span className="pl-4">Tokens</span>
           </Link>
-          <Link to="/Fees" className={pathname === '/Fees' ? activeLinkClass : linkClass}>
+          <Link to="/Fees" className={pathname === 'fees' ? activeLinkClass : linkClass}>
             <svg className='w-5 h-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M7 15h0M2 9.5h20" /></svg>
             <span className="pl-4">Fees</span>
           </Link>

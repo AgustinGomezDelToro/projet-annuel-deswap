@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Navbar from './components/Navbar/Navbar';
 import Users from './components/Users/Users';
 import Admins from './components/Admins/Admins';
+import Fee from './components/Fee/Fee';
 import { createWeb3Modal, defaultConfig, useWeb3ModalAccount } from '@web3modal/ethers/react';
 import ConnectButton from './asset/hooks/connectWallet';
 import { useContext } from 'react';
@@ -55,7 +56,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/users" element={<Users />} />
               <Route path="/tokens" element={<Tokens />} />
-              <Route path="/fees" element={<div />} />
+              <Route path="/fees" element={<Fee />} />
               <Route path="/admins" element={<Admins />} />
               <Route path="/pending" element={<PendingTx />} />
             </Routes>
