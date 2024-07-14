@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Title from "../Title/Title";
@@ -8,6 +8,11 @@ import '../../../src/index.css';
 
 const Dashboard: React.FC = () => {
     const address = "0x351024A4EC50612C8D1CF70cd508F77f37Da53F8";
+    const [chartData, setChartData] = useState<{ name: string, value: number }[]>([]);
+
+    const handleFilter = (filteredData: { name: string, value: number }[]) => {
+        setChartData(filteredData);
+    };
 
     return (
         <section className="mx-auto max-w-7xl px-4 py-8 text-gray-900">
@@ -33,11 +38,10 @@ const Dashboard: React.FC = () => {
                 </BounceCard>
             </div>
             <div className="mb-8">
-                <TransactionsList address={address} />
-
+                <TransactionsList address={address} onFilter={handleFilter} />
             </div>
             <div className="mb-8">
-                <CustomLineChart />
+                <CustomLineChart data={chartData} />
             </div>
         </section>
     );

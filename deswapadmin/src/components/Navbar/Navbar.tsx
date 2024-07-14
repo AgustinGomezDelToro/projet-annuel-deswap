@@ -27,7 +27,7 @@ const Navbar = () => {
             <svg className='w-5 h-5 border group-hover:border-white rounded-full p-0.5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             <span className="pl-4">Tokens</span>
           </Link>
-          <Link to="/Fees" className={pathname === '/Fees' ? activeLinkClass : linkClass}>
+          <Link to="/Fees" className={pathname === 'fees' ? activeLinkClass : linkClass}>
             <svg className='w-5 h-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M7 15h0M2 9.5h20" /></svg>
             <span className="pl-4">Fees</span>
           </Link>
@@ -38,6 +38,10 @@ const Navbar = () => {
           <Link to="/Pending" className={pathname === '/Pending' ? activeLinkClass : linkClass}>
             <svg className='w-5 h-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> <path d="M2.5 2v6h6M21.5 22v-6h-6" /><path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2" /></svg>
             <span className="pl-4">Pending txs</span>
+          </Link>
+          <Link to ="/Smartcontract" className={pathname === '/Smartcontract' ? activeLinkClass : linkClass}>
+          <svg className='w-5 h-5' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" /><path d="M7 2v20M17 22V2" /></svg>
+          <span className="pl-4">Smart Contract</span>
           </Link>
         </nav>
       </div>

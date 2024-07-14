@@ -47,6 +47,13 @@ func main() {
 	app.Post("/histories/add", controllers.AddHistory)
 	app.Get("/histories/user/:userID", controllers.GetHistoriesByUser)
 
+	// Configurer les routes pour les frais
+	app.Get("/fees", controllers.GetAllFees)
+	app.Post("/fees/add", controllers.AddFee)
+	app.Get("/fees/user/:userID", controllers.GetFeesByUser)
+	app.Get("/fees/token/:tokenID", controllers.GetFeesByToken)
+	app.Get("/fees/wallet/:walletID", controllers.GetFeesByWallet)
+
 	log.Info("Server started on port 3001")
 	app.Listen(":3001")
 }
