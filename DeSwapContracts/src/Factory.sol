@@ -2,10 +2,10 @@
 
 pragma solidity 0.8.24;
 
-import "./DeSwapPools.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import "./Pools.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/utils/ReentrancyGuard.sol";
 
 contract DeSwapFactory is Ownable, ReentrancyGuard {
     struct InfosPool {
@@ -14,14 +14,14 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     }
 
     mapping (address => InfosPool) public pools;
-    address[] pairsAddresses;
+    address[] public pairsAddresses;
     ERC20[] public tokens;
 
     uint256 private fee; // 1% = 100
 
     event NewPoolCreated(address poolAddress);
 
-    constructor() {
+    constructor(address initialOwner) Ownable(initialOwner) {
         fee = 10; // 0.1%
     }
 
@@ -29,9 +29,9 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
         ERC20 _tokenA = ERC20(_addressA);
         ERC20 _tokenB = ERC20(_addressB);
 
-        require(!existPair(address(_tokenA), address(_tokenB)), "Pool already exist");
-        require(_tokenA.allowance(msg.sender, address(this)) >= _amountA, "no allowance for tokenA");
-        require(_tokenB.allowance(msg.sender, address(this)) >= _amountB, "no allowance for tokenB");
+        require(!existPair(address(_tokenA), address(_tokenB)), "Pool already exists");
+        require(_tokenA.allowance(msg.sender, address(this)) >= _amountA, "No allowance for tokenA");
+        require(_tokenB.allowance(msg.sender, address(this)) >= _amountB, "No allowance for tokenB");
 
         if(!existToken(_tokenA)){
             tokens.push(_tokenA);
@@ -50,15 +50,13 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     }
 
     function existPair(address _tokenA, address _tokenB) view internal returns(bool) {
-        uint pairsLenght = pairsAddresses.length;
+        uint pairsLength = pairsAddresses.length;
         ERC20 tokenA = ERC20(_tokenA);
         ERC20 tokenB = ERC20(_tokenB);
-        for (uint i = 0; i < pairsLenght; i++){
+        for (uint i = 0; i < pairsLength; i++){
             address pairsAddress = pairsAddresses[i];
-            if(pools[pairsAddress].tokenA == tokenA && pools[pairsAddress].tokenB == tokenB){
-                return true;
-            }
-            if(pools[pairsAddress].tokenA == tokenB && pools[pairsAddress].tokenB == tokenA){
+            if((pools[pairsAddress].tokenA == tokenA && pools[pairsAddress].tokenB == tokenB) ||
+                (pools[pairsAddress].tokenA == tokenB && pools[pairsAddress].tokenB == tokenA)){
                 return true;
             }
         }
@@ -66,8 +64,8 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     }
 
     function existToken(ERC20 _token) view internal returns(bool) {
-        uint tokensLenght = tokens.length;
-        for (uint i = 0; i < tokensLenght; i++){
+        uint tokensLength = tokens.length;
+        for (uint i = 0; i < tokensLength; i++){
             if(tokens[i] == _token){
                 return true;
             }
@@ -76,10 +74,10 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     }
 
     function getPairsAddresses() view public returns(address[] memory, InfosPool[] memory){
-        uint pairsLenght = pairsAddresses.length;
-        address[] memory pairsAddressesArray = new address[](pairsLenght);
-        InfosPool[] memory pairsInfos = new InfosPool[](pairsLenght);
-        for (uint i = 0; i < pairsLenght; i++){
+        uint pairsLength = pairsAddresses.length;
+        address[] memory pairsAddressesArray = new address[](pairsLength);
+        InfosPool[] memory pairsInfos = new InfosPool[](pairsLength);
+        for (uint i = 0; i < pairsLength; i++){
             pairsAddressesArray[i] = pairsAddresses[i];
             pairsInfos[i] = pools[pairsAddresses[i]];
         }
@@ -87,15 +85,13 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     }
 
     function getPairAddress(address token1, address token2) view public returns(address){
-        uint pairsLenght = pairsAddresses.length;
+        uint pairsLength = pairsAddresses.length;
         ERC20 tokenA = ERC20(token1);
         ERC20 tokenB = ERC20(token2);
-        for (uint i = 0; i < pairsLenght; i++){
+        for (uint i = 0; i < pairsLength; i++){
             address pairsAddress = pairsAddresses[i];
-            if(pools[pairsAddress].tokenA == tokenA && pools[pairsAddress].tokenB == tokenB){
-                return pairsAddress;
-            }
-            if(pools[pairsAddress].tokenA == tokenB && pools[pairsAddress].tokenB == tokenA){
+            if((pools[pairsAddress].tokenA == tokenA && pools[pairsAddress].tokenB == tokenB) ||
+                (pools[pairsAddress].tokenA == tokenB && pools[pairsAddress].tokenB == tokenA)){
                 return pairsAddress;
             }
         }
@@ -111,34 +107,34 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     }
 
     function getTokensAmountToClaim() view external returns(uint256[] memory, ERC20[] memory){
-        uint tokensLenght = tokens.length;
-        uint[] memory tokensAmountToClaim = new uint[](tokensLenght);
-        for (uint i = 0; i < tokensLenght; i++){
+        uint tokensLength = tokens.length;
+        uint[] memory tokensAmountToClaim = new uint[](tokensLength);
+        for (uint i = 0; i < tokensLength; i++){
             tokensAmountToClaim[i] = tokens[i].balanceOf(address(this));
         }
         return (tokensAmountToClaim, tokens);
     }
 
     function claimTokens(ERC20 _token) external onlyOwner {
-        require(existToken(_token), "Token not exist");
+        require(existToken(_token), "Token does not exist");
         _token.transfer(msg.sender, _token.balanceOf(address(this)));
     }
 
     function claimAll() external onlyOwner {
-        uint tokensLenght = tokens.length;
-        for (uint i = 0; i < tokensLenght; i++){
+        uint tokensLength = tokens.length;
+        for (uint i = 0; i < tokensLength; i++){
             tokens[i].transfer(msg.sender, tokens[i].balanceOf(address(this)));
         }
     }
 
     function closePool(address _pairAddress) external onlyOwner {
-        require(pools[_pairAddress].tokenA != ERC20(address(0)), "Pool not exist");
+        require(pools[_pairAddress].tokenA != ERC20(address(0)), "Pool does not exist");
         DeSwapPools pool = DeSwapPools(_pairAddress);
         pool.closePool();
-        uint pairsLenght = pairsAddresses.length;
-        for (uint i = 0; i < pairsLenght; i++){
+        uint pairsLength = pairsAddresses.length;
+        for (uint i = 0; i < pairsLength; i++){
             if(pairsAddresses[i] == _pairAddress){
-                pairsAddresses[i] = pairsAddresses[pairsLenght - 1];
+                pairsAddresses[i] = pairsAddresses[pairsLength - 1];
                 pairsAddresses.pop();
                 break;
             }

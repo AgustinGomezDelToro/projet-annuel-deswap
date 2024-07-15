@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -8,13 +8,13 @@ import {DeSwapFactory} from "../src/Factory.sol";
 
 contract TokenA is ERC20 {
     constructor() ERC20("TokenA", "TKA") {
-        _mint(msg.sender, 3000);
+        _mint(msg.sender, 3000 ether);
     }
 }
 
 contract TokenB is ERC20 {
     constructor() ERC20("TokenB", "TKB") {
-        _mint(msg.sender, 5000);
+        _mint(msg.sender, 5000 ether);
     }
 }
 
@@ -27,92 +27,112 @@ contract DeSwapPoolsTest is Test {
     function setUp() public {
         tokenA = new TokenA();
         tokenB = new TokenB();
-        factory = new DeSwapFactory();
+        factory = new DeSwapFactory(address(this));
 
-        deSwapPools = new DeSwapPools(tokenA, tokenB, address(factory));
-        tokenA.approve(address(deSwapPools), 1000);
-        tokenB.approve(address(deSwapPools), 2000);
-        deSwapPools.initPool(1000, 2000);
-        assertEq(tokenA.balanceOf(address(deSwapPools)), 1000);
-        assertEq(tokenB.balanceOf(address(deSwapPools)), 2000);
-        assertEq(deSwapPools.k(), 2000000);
+        deSwapPools = new DeSwapPools(tokenA, tokenB, address(factory), 1000 ether, 2000 ether);
+        tokenA.transfer(address(deSwapPools), 1000 ether);
+        tokenB.transfer(address(deSwapPools), 2000 ether);
+        assertEq(tokenA.balanceOf(address(deSwapPools)), 1000 ether);
+        assertEq(tokenB.balanceOf(address(deSwapPools)), 2000 ether);
+        assertEq(deSwapPools.k(), 2000000 ether);
     }
 
     function test_AddLiquidity() public {
-        tokenA.approve(address(deSwapPools), 1000);
-        tokenB.approve(address(deSwapPools), 2000);
-        deSwapPools.addLiquidity(1000, 2000);
-        assertEq(tokenA.balanceOf(address(deSwapPools)), 2000);
-        assertEq(tokenB.balanceOf(address(deSwapPools)), 4000);
+        tokenA.approve(address(deSwapPools), 1000 ether);
+        tokenB.approve(address(deSwapPools), 2000 ether);
+        deSwapPools.addLiquidity(1000 ether, 2000 ether);
+        assertEq(tokenA.balanceOf(address(deSwapPools)), 2000 ether);
+        assertEq(tokenB.balanceOf(address(deSwapPools)), 4000 ether);
     }
 
     function test_GetRateAforB() public {
-        uint256 expectedRate = 2 * 10 ** tokenA.decimals();
-        assertEq(deSwapPools.getRateAforB(), expectedRate);
+        assertEq(deSwapPools.getRateAforB(), 2 * 10 ** tokenA.decimals());
     }
 
     function test_GetRateBforA() public {
-        uint256 expectedRate = (5 * 10 ** tokenB.decimals()) / 10;
-        assertEq(deSwapPools.getRateBforA(), expectedRate);
+        assertEq(deSwapPools.getRateBforA(), (5 * 10 ** tokenB.decimals()) / 10);
     }
 
     function test_SwapAforB() public {
-    uint256 initialTokenA = tokenA.balanceOf(address(deSwapPools));
-    uint256 initialTokenB = tokenB.balanceOf(address(deSwapPools));
+        uint256 initialTokenA = tokenA.balanceOf(address(deSwapPools));
 
-    uint256 amountB = deSwapPools.getExactTokenB(50);
-    console2.log("Amount of B to receive for 50 A:", amountB);
-    tokenA.approve(address(deSwapPools), 1000);
-    deSwapPools.swapAforB(50);
+        tokenA.approve(address(deSwapPools), 1000);
+        deSwapPools.swap(50, address(tokenA));
+        assertEq(tokenA.balanceOf(address(deSwapPools)), initialTokenA + 50);
+    }
 
-    uint256 expectedTokenA = initialTokenA + 50;
-    uint256 expectedTokenB = initialTokenB - (amountB * (100 - factory.getFees()) / 100);
+    function test_SwapBforA() public {
+        uint256 initialTokenB = tokenB.balanceOf(address(deSwapPools));
 
-    uint256 actualTokenA = tokenA.balanceOf(address(deSwapPools));
-    uint256 actualTokenB = tokenB.balanceOf(address(deSwapPools));
+        tokenB.approve(address(deSwapPools), 1000);
+        deSwapPools.swap(50, address(tokenB));
+        assertEq(tokenB.balanceOf(address(deSwapPools)), initialTokenB + 50);
+    }
 
-    console2.log("Initial TokenA balance:", initialTokenA);
-    console2.log("Initial TokenB balance:", initialTokenB);
-    console2.log("Expected TokenA balance:", expectedTokenA);
-    console2.log("Actual TokenA balance:", actualTokenA);
-    console2.log("Expected TokenB balance:", expectedTokenB);
-    console2.log("Actual TokenB balance:", actualTokenB);
+    function test_RemoveLiquidity() public {
+        tokenA.approve(address(deSwapPools), 1000 ether);
+        tokenB.approve(address(deSwapPools), 2000 ether);
+        deSwapPools.addLiquidity(1000 ether, 2000 ether);
 
-    assertApproxEq(actualTokenA, expectedTokenA, 10);
-    assertApproxEq(actualTokenB, expectedTokenB, 10);
-}
+        deSwapPools.removeLiquidity(500 ether, 1000 ether);
+        assertEq(tokenA.balanceOf(address(this)), 500 ether + 1000 ether);
+        assertEq(tokenB.balanceOf(address(this)), 1000 ether + 1000 ether);
+        assertEq(tokenA.balanceOf(address(deSwapPools)), 1500 ether);
+        assertEq(tokenB.balanceOf(address(deSwapPools)), 3000 ether);
 
-function test_SwapBforA() public {
-    uint256 initialTokenA = tokenA.balanceOf(address(deSwapPools));
-    uint256 initialTokenB = tokenB.balanceOf(address(deSwapPools));
+        deSwapPools.removeLiquidity(500 ether, 1000 ether);
+        assertEq(tokenA.balanceOf(address(this)), 500 ether + 1500 ether);
+        assertEq(tokenB.balanceOf(address(this)), 1000 ether + 2000 ether);
+        assertEq(tokenA.balanceOf(address(deSwapPools)), 1000 ether);
+        assertEq(tokenB.balanceOf(address(deSwapPools)), 2000 ether);
+    }
 
-    uint256 amountA = deSwapPools.getExactTokenA(50);
-    console2.log("Amount of A to receive for 50 B:", amountA);
-    tokenB.approve(address(deSwapPools), 1000);
-    deSwapPools.swapBforA(50);
+    function test_DistributeFeesToLiquidityProviders() public {
+        tokenA.approve(address(deSwapPools), 1000 ether);
+        tokenB.approve(address(deSwapPools), 2000 ether);
+        deSwapPools.addLiquidity(1000 ether, 2000 ether);
 
-    uint256 expectedTokenB = initialTokenB + 50;
-    uint256 expectedTokenA = initialTokenA - (amountA * (100 - factory.getFees()) / 100);
+        tokenA.approve(address(deSwapPools), 100 ether);
+        deSwapPools.swap(100 ether, address(tokenA));
 
-    uint256 actualTokenA = tokenA.balanceOf(address(deSwapPools));
-    uint256 actualTokenB = tokenB.balanceOf(address(deSwapPools));
+        uint256 totalFeesBefore = deSwapPools.totalFeesB();
+        assert(totalFeesBefore > 0);
+    }
 
-    console2.log("Initial TokenA balance:", initialTokenA);
-    console2.log("Initial TokenB balance:", initialTokenB);
-    console2.log("Expected TokenA balance:", expectedTokenA);
-    console2.log("Actual TokenA balance:", actualTokenA);
-    console2.log("Expected TokenB balance:", expectedTokenB);
-    console2.log("Actual TokenB balance:", actualTokenB);
+    function test_ClaimFees() public {
+        tokenA.approve(address(deSwapPools), 1000 ether);
+        tokenB.approve(address(deSwapPools), 2000 ether);
+        deSwapPools.addLiquidity(1000 ether, 2000 ether);
 
-    assertApproxEq(actualTokenA, expectedTokenA, 10);
-    assertApproxEq(actualTokenB, expectedTokenB, 10);
-}
+        tokenA.approve(address(deSwapPools), 100 ether);
+        deSwapPools.swap(100 ether, address(tokenA));
 
-function assertApproxEq(uint256 a, uint256 b, uint256 tolerance) internal view {
-    uint256 diff = a > b ? a - b : b - a;
-    console2.log("Difference:", diff);
-    console2.log("Tolerance:", tolerance);
-    require(diff <= tolerance, "Values are not within tolerance");
-}
+        uint256 initialBalanceB = tokenB.balanceOf(address(this));
+        deSwapPools.claim();
 
+        uint256 finalBalanceB = tokenB.balanceOf(address(this));
+        assert(finalBalanceB > initialBalanceB);
+    }
+
+    function test_ClosePool() public {
+        // Only factory can close the pool
+        vm.prank(address(factory));
+        deSwapPools.closePool();
+        assert(deSwapPools.getStatus());
+
+        // Ensure no one can add liquidity to a closed pool
+        tokenA.approve(address(deSwapPools), 1000 ether);
+        tokenB.approve(address(deSwapPools), 2000 ether);
+        vm.expectRevert("Pool is closed");
+        deSwapPools.addLiquidity(1000 ether, 2000 ether);
+    }
+
+    function test_GetExactToken() public {
+        uint256 amountFrom = 100 ether;
+        uint256 expectedAmountB = deSwapPools.getExactToken(amountFrom, address(tokenA));
+        assertEq(expectedAmountB, (2000 ether * amountFrom) / 1000 ether, "Expected amount of tokenB");
+
+        uint256 expectedAmountA = deSwapPools.getExactToken(amountFrom, address(tokenB));
+        assertEq(expectedAmountA, (1000 ether * amountFrom) / 2000 ether, "Expected amount of tokenA");
+    }
 }

@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/utils/ReentrancyGuard.sol";
 import "./IFactory.sol";
 
 contract DeSwapPools is ReentrancyGuard {
@@ -25,7 +25,7 @@ contract DeSwapPools is ReentrancyGuard {
     uint256 public totalFeesA;
     uint256 public totalFeesB;
 
-    constructor(ERC20 _tokenA, ERC20 _tokenB, address _factory, uint256 _amountA, uint256 _amountB){
+    constructor(ERC20 _tokenA, ERC20 _tokenB, address _factory, uint256 _amountA, uint256 _amountB) {
         tokenA = _tokenA;
         tokenB = _tokenB;
         factory = IDeSwapFactory(_factory);
@@ -40,7 +40,7 @@ contract DeSwapPools is ReentrancyGuard {
         _;
     }
 
-    function addLiquidity(uint256 _amountA, uint256 _amountB) external nonReentrant isNotClosed() {
+    function addLiquidity(uint256 _amountA, uint256 _amountB) external nonReentrant isNotClosed {
         require(tokenA.allowance(msg.sender, address(this)) >= _amountA, "no allowance for tokenA");
         require(tokenB.allowance(msg.sender, address(this)) >= _amountB, "no allowance for tokenB");
         uint256 current_ratio = getSupplyA() / getSupplyB();
@@ -81,10 +81,10 @@ contract DeSwapPools is ReentrancyGuard {
         uint256 platformFee = feeAmount / 2;
         uint256 liquidityProvidersFee = feeAmount - platformFee;
 
-        tokenFrom.transferFrom(msg.sender, address(this), _amountFrom);
-        tokenTo.transfer(address(factory), platformFee);
-        distributeFeesToLiquidityProviders(tokenTo, liquidityProvidersFee);
-        tokenTo.transfer(msg.sender, _amountTo * (100 - fees) / 100);
+        tokenFrom.transferFrom(msg.sender, address(this), _amountFrom); // On prend les tokens
+        tokenTo.transfer(address(factory), platformFee); // On envoie les fees à la factory
+        distributeFeesToLiquidityProviders(tokenTo, liquidityProvidersFee); // On distribue les fees aux liquidity providers
+        tokenTo.transfer(msg.sender, _amountTo * (100 - fees) / 100); // On envoie 100% - fees%
     }
 
     function distributeFeesToLiquidityProviders(ERC20 token, uint256 liquidityProvidersFee) internal {
@@ -131,11 +131,11 @@ contract DeSwapPools is ReentrancyGuard {
         }
     }
 
-    function getRateAforB() view external returns(uint256) {
+    function getRateAforB() view external returns(uint256) { // Pour chaque A on a xB
         return getSupplyB() * 10 ** tokenA.decimals() / getSupplyA();
     }
 
-    function getRateBforA() view external returns(uint256) {
+    function getRateBforA() view external returns(uint256) { // Pour chaque B on a xA
         return getSupplyA() * 10 ** tokenB.decimals() / getSupplyB();
     }
 
