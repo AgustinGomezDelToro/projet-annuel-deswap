@@ -7,12 +7,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// GetAllTokens récupère tous les tokens de la base de données et les renvoie en tant que réponse JSON.
 func GetAllTokens(c *fiber.Ctx) error {
 	var tokens []models.Token
 	database.DB.Find(&tokens)
 	return c.JSON(tokens)
 }
 
+// AddToken ajoute un nouveau token à la base de données en utilisant les données fournies dans le corps de la requête.
+// Renvoie le token ajouté en tant que réponse JSON.
 func AddToken(c *fiber.Ctx) error {
 	var token models.Token
 	if err := c.BodyParser(&token); err != nil {
@@ -22,6 +25,8 @@ func AddToken(c *fiber.Ctx) error {
 	return c.JSON(token)
 }
 
+// UpdateToken met à jour un token existant dans la base de données en utilisant les données fournies dans le corps de la requête.
+// Renvoie le token mis à jour en tant que réponse JSON.
 func UpdateToken(c *fiber.Ctx) error {
 	var token models.Token
 	if err := c.BodyParser(&token); err != nil {
@@ -33,6 +38,8 @@ func UpdateToken(c *fiber.Ctx) error {
 	return c.JSON(token)
 }
 
+// GetByAddress récupère un token spécifique de la base de données en utilisant l'adresse fournie en tant que paramètre de requête.
+// Renvoie le token trouvé en tant que réponse JSON.
 func GetByAddress(c *fiber.Ctx) error {
 	address := c.Params("address")
 	var token models.Token
@@ -42,6 +49,8 @@ func GetByAddress(c *fiber.Ctx) error {
 	return c.JSON(token)
 }
 
+// DeleteToken supprime un token de la base de données en utilisant l'adresse fournie en tant que paramètre de requête.
+// Renvoie une réponse sans contenu (204 No Content) si la suppression est réussie.
 func DeleteToken(c *fiber.Ctx) error {
 	address := c.Params("address")
 	if result := database.DB.Where("address = ?", address).Delete(&models.Token{}); result.Error != nil {

@@ -1,16 +1,18 @@
 import React, { useState, useContext } from 'react';
-import { ethers, parseEther } from 'ethers';
+import { ethers, parseEther, formatEther } from 'ethers';
 import { SafeContext } from '../../asset/hooks/safe';
 import { useWeb3ModalProvider } from '@web3modal/ethers/react';
 
-const Smartcontract: React.FC = () => {
+const Pool: React.FC = () => {
     const { walletProvider } = useWeb3ModalProvider();
     const { accountAddress } = useContext(SafeContext);
-    const [amount, setAmount] = useState<string>('');
-    const [balance, setBalance] = useState<string>('');
-    const factoryAddress = "VOTRE_ADRESSE_DE_CONTRAT_FACTORY"; // Remplacez par l'adresse de votre contrat
+    const [amountA, setAmountA] = useState<string>('');
+    const [amountB, setAmountB] = useState<string>('');
+    const [poolAddress, setPoolAddress] = useState<string>(''); // Adresse du pool
+    const [balanceA, setBalanceA] = useState<string>('');
+    const [balanceB, setBalanceB] = useState<string>('');
 
-    const depositETH = async () => {
+    const addLiquidity = async () => {
         if (!walletProvider || !accountAddress) {
             console.error("Wallet not connected");
             return;
@@ -20,19 +22,38 @@ const Smartcontract: React.FC = () => {
             const provider = new ethers.BrowserProvider(walletProvider);
             const signer = await provider.getSigner();
 
-            const tx = await signer.sendTransaction({
-                to: factoryAddress,
-                value: parseEther(amount)
-            });
+            const tokenA = new ethers.Contract(
+                "ADDRESS_TOKEN_A",
+                ["function approve(address spender, uint256 amount) public returns (bool)"],
+                signer
+            );
 
+            const tokenB = new ethers.Contract(
+                "ADDRESS_TOKEN_B",
+                ["function approve(address spender, uint256 amount) public returns (bool)"],
+                signer
+            );
+
+            await tokenA.approve(poolAddress, parseEther(amountA));
+            await tokenB.approve(poolAddress, parseEther(amountB));
+
+            const poolContract = new ethers.Contract(
+                poolAddress,
+                [
+                    "function addLiquidity(uint256 _amountA, uint256 _amountB) external"
+                ],
+                signer
+            );
+
+            const tx = await poolContract.addLiquidity(parseEther(amountA), parseEther(amountB));
             await tx.wait();
-            alert('Deposit successful!');
+            alert('Liquidity added successfully!');
         } catch (error) {
-            console.error('Error depositing ETH:', error);
+            console.error('Error adding liquidity:', error);
         }
     };
 
-    const withdrawETH = async () => {
+    const removeLiquidity = async () => {
         if (!walletProvider || !accountAddress) {
             console.error("Wallet not connected");
             return;
@@ -41,22 +62,20 @@ const Smartcontract: React.FC = () => {
         try {
             const provider = new ethers.BrowserProvider(walletProvider);
             const signer = await provider.getSigner();
-            const contract = new ethers.Contract(factoryAddress, [
-                "function withdraw(uint256 _amount) external",
-                "function getBalance() external view returns (uint256)"
-            ], signer);
 
-            const balance = await contract.getBalance();
-            if (parseEther(amount) > balance) {
-                alert('Insufficient balance in the contract');
-                return;
-            }
+            const poolContract = new ethers.Contract(
+                poolAddress,
+                [
+                    "function removeLiquidity(uint256 _amountA, uint256 _amountB) external"
+                ],
+                signer
+            );
 
-            const tx = await contract.withdraw(parseEther(amount));
+            const tx = await poolContract.removeLiquidity(parseEther(amountA), parseEther(amountB));
             await tx.wait();
-            alert('Withdrawal successful!');
+            alert('Liquidity removed successfully!');
         } catch (error) {
-            console.error('Error withdrawing ETH:', error);
+            console.error('Error removing liquidity:', error);
         }
     };
 
@@ -69,12 +88,20 @@ const Smartcontract: React.FC = () => {
         try {
             const provider = new ethers.BrowserProvider(walletProvider);
             const signer = await provider.getSigner();
-            const contract = new ethers.Contract(factoryAddress, [
-                "function getBalance() external view returns (uint256)"
-            ], signer);
+            const poolContract = new ethers.Contract(
+                poolAddress,
+                [
+                    "function getSupplyA() view public returns (uint256)",
+                    "function getSupplyB() view public returns (uint256)"
+                ],
+                signer
+            );
 
-            const balance = await contract.getBalance();
-            setBalance(ethers.formatEther(balance));
+            const balanceA = await poolContract.getSupplyA();
+            const balanceB = await poolContract.getSupplyB();
+
+            setBalanceA(formatEther(balanceA));
+            setBalanceB(formatEther(balanceB));
         } catch (error) {
             console.error('Error getting balance:', error);
         }
@@ -83,26 +110,40 @@ const Smartcontract: React.FC = () => {
     return (
         <div className="bg-gray-100 min-h-screen flex items-center justify-center">
             <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-                <h1 className="text-3xl font-bold text-center mb-6">Smart Contract</h1>
+                <h1 className="text-3xl font-bold text-center mb-6">Liquidity Pool</h1>
                 <div className="flex flex-col space-y-4">
                     <input
                         type="text"
-                        placeholder="Amount in ETH"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="Amount Token A"
+                        value={amountA}
+                        onChange={(e) => setAmountA(e.target.value)}
+                        className="w-full px-4 py-2 text-lg text-gray-700 placeholder-gray-500 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Amount Token B"
+                        value={amountB}
+                        onChange={(e) => setAmountB(e.target.value)}
+                        className="w-full px-4 py-2 text-lg text-gray-700 placeholder-gray-500 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Pool Address"
+                        value={poolAddress}
+                        onChange={(e) => setPoolAddress(e.target.value)}
                         className="w-full px-4 py-2 text-lg text-gray-700 placeholder-gray-500 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
-                        onClick={depositETH}
+                        onClick={addLiquidity}
                         className="w-full py-2 text-lg text-white transition-colors duration-200 rounded-lg bg-blue-600 hover:bg-blue-700 focus:outline-none"
                     >
-                        Deposit ETH
+                        Add Liquidity
                     </button>
                     <button
-                        onClick={withdrawETH}
+                        onClick={removeLiquidity}
                         className="w-full py-2 text-lg text-white transition-colors duration-200 rounded-lg bg-red-600 hover:bg-red-700 focus:outline-none"
                     >
-                        Withdraw ETH
+                        Remove Liquidity
                     </button>
                     <button
                         onClick={checkBalance}
@@ -110,9 +151,10 @@ const Smartcontract: React.FC = () => {
                     >
                         Check Balance
                     </button>
-                    {balance && (
+                    {balanceA && balanceB && (
                         <div className="mt-4 text-center text-lg">
-                            <p>Contract Balance: {balance} ETH</p>
+                            <p>Contract Balance A: {balanceA} Token A</p>
+                            <p>Contract Balance B: {balanceB} Token B</p>
                         </div>
                     )}
                 </div>
@@ -121,4 +163,4 @@ const Smartcontract: React.FC = () => {
     );
 };
 
-export default Smartcontract;
+export default Pool;
