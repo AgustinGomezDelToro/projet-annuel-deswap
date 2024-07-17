@@ -11,8 +11,7 @@ interface DeployProps {
 }
 
 export const deploy = async ({ name, symbol, setMessage, setNotification, walletProvider }: DeployProps) => {
-
-    const provider = new BrowserProvider(walletProvider as any)
+    const provider = new BrowserProvider(walletProvider as any);
     const signer = await provider.getSigner();
     const factory = new ethers.ContractFactory(SimpleERC20ABI, SimpleERC20Bytecode.bytecode, signer);
 
