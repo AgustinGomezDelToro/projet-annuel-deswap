@@ -1,21 +1,19 @@
 import { useWeb3ModalProvider } from "@web3modal/ethers/react";
-import { BrowserProvider, ethers, Interface, ReactNode } from "ethers";
+import { BrowserProvider, ethers } from "ethers";
 import { createContext } from "react";
-import tokenContractABI from "../asset/abi/MyERC20.json";
+import tokenContractABI from "../asset/abi/SimpleTokenABI.json";
 
-interface SimpleTokensContextType {
-    getBalance: (tokenAddress: string, account: string) => Promise<string>;
-    approve: (tokenAddress: string, amount: bigint, to: string) => Promise<ethers.TransactionResponse | null>;
-}
+const SimpleTokensContext = createContext({
+    getBalance: async (tokenAddress: string, account: string) => Promise<string>,
+    approve: async (tokenAddress: string, amount: bigint, to: string) => Promise<ethers.TransactionResponse | null>
+});
 
-const SimpleTokensContext = createContext<SimpleTokensContextType | undefined>(undefined);
-
-function SimpleTokenProvider({ children }: { children: ReactNode }) {
+function SimpleTokenProvider({ children }: { children: React.ReactNode }) {
     const { walletProvider } = useWeb3ModalProvider();
 
     async function getBalance(tokenAddress: string, account: string) {
         const provider = new BrowserProvider(walletProvider as any);
-        const tokenContract = new ethers.Contract(tokenAddress, tokenContractABI as unknown as Interface, provider);
+        const tokenContract = new ethers.Contract(tokenAddress, tokenContractABI, provider);
         try {
             const balance = await tokenContract.balanceOf(account);
             return balance;
@@ -28,7 +26,7 @@ function SimpleTokenProvider({ children }: { children: ReactNode }) {
     async function approve(tokenAddress: string, amount: bigint, to: string) {
         const provider = new BrowserProvider(walletProvider as any);
         const signer = await provider.getSigner();
-        const tokenContract = new ethers.Contract(tokenAddress, tokenContractABI as unknown as Interface, signer);
+        const tokenContract = new ethers.Contract(tokenAddress, tokenContractABI, signer);
         try {
             const tx = await tokenContract.approve(to, amount);
             await tx.wait();
@@ -37,7 +35,7 @@ function SimpleTokenProvider({ children }: { children: ReactNode }) {
             console.log(error);
             return null;
         }
-
+    
     }
 
     return (
@@ -48,5 +46,3 @@ function SimpleTokenProvider({ children }: { children: ReactNode }) {
 }
 
 export { SimpleTokensContext, SimpleTokenProvider };
-
-export {}; // Asegura que este archivo se considere un módulo

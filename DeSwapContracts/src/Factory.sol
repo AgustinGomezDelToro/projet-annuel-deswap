@@ -6,6 +6,7 @@ import "./Pools.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/utils/ReentrancyGuard.sol";
+import "./ERC20.sol";
 
 contract DeSwapFactory is Ownable, ReentrancyGuard {
     struct InfosPool {
@@ -20,12 +21,31 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
     uint256 private fee; // 1% = 100
 
     event NewPoolCreated(address poolAddress);
+    event NewTokenCreated(address tokenAddress, string name, string symbol, uint256 initialSupply);
 
     constructor(address initialOwner) Ownable(initialOwner) {
         fee = 10; // 0.1%
     }
 
-    function createPool(address _addressA, address _addressB, uint256 _amountA, uint256 _amountB) external nonReentrant {
+    function createTokenAndPool(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        uint256 amountA,
+        uint256 amountB
+    ) external nonReentrant {
+        MyToken tokenA = new MyToken(name, symbol, initialSupply);
+        MyToken tokenB = new MyToken(name, symbol, initialSupply); // o usa otra dirección de token
+
+        emit NewTokenCreated(address(tokenA), name, symbol, initialSupply);
+
+        tokenA.approve(address(this), amountA);
+        tokenB.approve(address(this), amountB);
+
+        createPool(address(tokenA), address(tokenB), amountA, amountB);
+    }
+
+    function createPool(address _addressA, address _addressB, uint256 _amountA, uint256 _amountB) public nonReentrant {
         ERC20 _tokenA = ERC20(_addressA);
         ERC20 _tokenB = ERC20(_addressB);
 

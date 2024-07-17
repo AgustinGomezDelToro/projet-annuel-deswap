@@ -10,11 +10,6 @@
 				"internalType": "string",
 				"name": "symbol",
 				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "initialSupply",
-				"type": "uint256"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -38,8 +33,8 @@
 				"type": "uint256"
 			}
 		],
-		"type": "error",
-		"name": "ERC20InsufficientAllowance"
+		"name": "ERC20InsufficientAllowance",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -59,8 +54,8 @@
 				"type": "uint256"
 			}
 		],
-		"type": "error",
-		"name": "ERC20InsufficientBalance"
+		"name": "ERC20InsufficientBalance",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -70,8 +65,8 @@
 				"type": "address"
 			}
 		],
-		"type": "error",
-		"name": "ERC20InvalidApprover"
+		"name": "ERC20InvalidApprover",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -81,8 +76,8 @@
 				"type": "address"
 			}
 		],
-		"type": "error",
-		"name": "ERC20InvalidReceiver"
+		"name": "ERC20InvalidReceiver",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -92,8 +87,8 @@
 				"type": "address"
 			}
 		],
-		"type": "error",
-		"name": "ERC20InvalidSender"
+		"name": "ERC20InvalidSender",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -103,8 +98,8 @@
 				"type": "address"
 			}
 		],
-		"type": "error",
-		"name": "ERC20InvalidSpender"
+		"name": "ERC20InvalidSpender",
+		"type": "error"
 	},
 	{
 		"anonymous": false,

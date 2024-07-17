@@ -4,33 +4,20 @@ import "./Pools.scss";
 import { PoolInterface } from "../../interfaces/Pools";
 import { Link } from "react-router-dom";
 import PoolService from "../../services/Pools";
-import { FactoryContext } from "../../utils/hooks/Factory";
+//import { FactoryContext } from "../../utils/hooks/Factory";
 import Token from "../../services/Tokens";
 // import money from "../../utils/asset/images/money.png";
 
 const Pools = () => {
     const [pools, setPools] = useState<PoolInterface[]>([]);
 
-    const context = useContext(FactoryContext);
-    const { getAllPools } = context!;
 
     useEffect(() => {
-        const fetchPools = async () => {
-            // const pools = await new PoolService().getAll();
-            const datas = await getAllPools();
-            const pools: PoolInterface[] = [];
-            for (let i = 0; i < datas[0].length; i++) {
-                const token1 = await new Token().getByAddress(datas[1][i][0]);
-                const token2 = await new Token().getByAddress(datas[1][i][1]);
-                pools.push({
-                    address: datas[0][i],
-                    token1: token1,
-                    token2: token2
-                });
-            }
+        async function fetchPools() {
+            const pools = await new PoolService().getAll();
+            console.log(pools);
             setPools(pools);
-        };
-
+        }
         fetchPools();
     }, []);
 

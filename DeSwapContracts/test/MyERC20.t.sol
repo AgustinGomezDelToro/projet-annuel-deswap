@@ -5,10 +5,10 @@ import "forge-std/Test.sol";
 import "../src/ERC20.sol";
 
 contract MyERC20Test is Test {
-    MyERC20 private myToken;
+    MyToken private myToken;
 
     function setUp() public {
-        myToken = new MyERC20("Test Token", "TST");
+        myToken = new MyToken("Test Token", "TST", 1000000 * 10 ** 18); // Asegúrate de incluir el suministro inicial
     }
 
     function testInitialMint() public {
