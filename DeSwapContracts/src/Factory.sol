@@ -160,4 +160,11 @@ contract DeSwapFactory is Ownable, ReentrancyGuard {
             }
         }
     }
+
+    function claimAllFees() external onlyOwner {
+        for (uint i = 0; i < pairsAddresses.length; i++) {
+            DeSwapPools pool = DeSwapPools(pairsAddresses[i]);
+            pool.claim();
+        }
+    }
 }

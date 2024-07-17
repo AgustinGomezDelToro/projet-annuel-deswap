@@ -3,12 +3,12 @@
 pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./IFactory.sol";
 
 contract DeSwapPools is ReentrancyGuard {
-    ERC20 tokenA;
-    ERC20 tokenB;
+    ERC20 public tokenA;
+    ERC20 public tokenB;
     uint public k; // Constant used to calculate the price (tokenA * tokenB = k)
     bool public closed;
     IDeSwapFactory factory;
@@ -54,6 +54,24 @@ contract DeSwapPools is ReentrancyGuard {
         }
         liquidityProvider[msg.sender].amountA += _amountA;
         liquidityProvider[msg.sender].amountB += _amountB;
+    }
+
+    function addLiquiditySingleToken(uint256 _amount, address _token) external nonReentrant isNotClosed {
+        ERC20 token = ERC20(_token);
+        require(token.allowance(msg.sender, address(this)) >= _amount, "no allowance for token");
+        token.transferFrom(msg.sender, address(this), _amount);
+
+        if(token == tokenA) {
+            liquidityProvider[msg.sender].amountA += _amount;
+        } else if(token == tokenB) {
+            liquidityProvider[msg.sender].amountB += _amount;
+        } else {
+            revert("Invalid token");
+        }
+
+        if(liquidityProvider[msg.sender].amountA == 0 && liquidityProvider[msg.sender].amountB == 0){
+            liquidityProviders.push(msg.sender);
+        }
     }
 
     function removeLiquidity(uint256 _amountA, uint256 _amountB) external nonReentrant {
