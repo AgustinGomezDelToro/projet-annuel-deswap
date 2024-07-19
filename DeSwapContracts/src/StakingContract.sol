@@ -1,67 +1,72 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: GPL-3.0
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+pragma solidity 0.8.24;
 
-contract StakingContract {
-    IERC20 public stakingToken;
-    address public feeCollector;
-    uint256 public rewardRate = 100;
-    uint256 public feeRate = 1; // Fee rate as a percentage
+import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 
-    mapping(address => uint256) public stakingBalance;
-    mapping(address => uint256) public lastUpdateBlock;
-    mapping(address => uint256) public rewards;
+contract DeSwapStaking is Ownable, ReentrancyGuard {
 
-    constructor(address _stakingToken, address _feeCollector) {
-        stakingToken = IERC20(_stakingToken);
-        feeCollector = _feeCollector;
+    uint256 public dailyRewardRate = 0.0001 * 10 ** 18; // 0.01% per day
+
+    struct Stake {
+        uint256 amount;
+        uint256 reward;
+        uint256 lastUpdateTime;
     }
 
-    function setFeeRate(uint256 _feeRate) external {
-        require(msg.sender == feeCollector, "Only fee collector can set fee rate");
-        feeRate = _feeRate;
+    uint256 public totalSupply;
+    mapping(address => Stake) public stakes;
+
+    event Staked(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, uint256 amount);
+    event RewardPaid(address indexed user, uint256 reward);
+
+    constructor() Ownable(msg.sender) { }
+
+    modifier updateReward(address account) {
+        stakes[account].reward = earned(account);
+        stakes[account].lastUpdateTime = block.timestamp;
+        _;
     }
 
-    function stake(uint256 _amount) external {
-        updateReward(msg.sender);
-        uint256 fee = (_amount * feeRate) / 100;
-        uint256 amountAfterFee = _amount - fee;
-        stakingToken.transferFrom(msg.sender, feeCollector, fee);
-        stakingToken.transferFrom(msg.sender, address(this), amountAfterFee);
-        stakingBalance[msg.sender] += amountAfterFee;
-        lastUpdateBlock[msg.sender] = block.number;
+    function stake() external updateReward(msg.sender) payable {
+        require(msg.value > 0, "Cannot stake 0");
+        stakes[msg.sender].amount += msg.value;
+        totalSupply += msg.value;
+        emit Staked(msg.sender, msg.value);
     }
 
-    // Rename function to getRewardRate
-    function getRewardRate() public view returns (uint256) {
-        return rewardRate;
+    function unstake(uint256 amount) external updateReward(msg.sender) nonReentrant {
+        require(amount > 0, "Cannot unstake 0");
+        require(stakes[msg.sender].amount >= amount, "Insufficient balance");
+        stakes[msg.sender].amount -= amount;
+        totalSupply -= amount;
+        payable(msg.sender).transfer(amount);
+        emit Withdrawn(msg.sender, amount);
     }
 
-    function withdraw(uint256 _amount) external {
-        require(stakingBalance[msg.sender] >= _amount, "Insufficient balance");
-        updateReward(msg.sender);
-        uint256 fee = (_amount * feeRate) / 100;
-        uint256 amountAfterFee = _amount - fee;
-        stakingBalance[msg.sender] -= _amount;
-        stakingToken.transfer(feeCollector, fee);
-        stakingToken.transfer(msg.sender, amountAfterFee);
+    function claim() external updateReward(msg.sender) nonReentrant {
+        uint256 reward = stakes[msg.sender].reward;
+        require(reward > 0, "No reward");
+        stakes[msg.sender].reward = 0;
+        payable(msg.sender).transfer(reward);
+        emit RewardPaid(msg.sender, reward);
     }
 
-    function getReward() external {
-        updateReward(msg.sender);
-        uint256 reward = rewards[msg.sender];
-        rewards[msg.sender] = 0;
-        stakingToken.transfer(msg.sender, reward);
+    function setDailyRewardRate(uint256 _dailyRewardRate) external onlyOwner {
+        dailyRewardRate = _dailyRewardRate;
     }
 
-    function updateReward(address _user) internal {
-        rewards[_user] += earned(_user);
-        lastUpdateBlock[_user] = block.number;
+    function balanceOf(address account) external view returns (uint256) {
+        return stakes[account].amount;
     }
 
-    function earned(address _user) public view returns (uint256) {
-        uint256 blockDiff = block.number - lastUpdateBlock[_user];
-        return stakingBalance[_user] * blockDiff * rewardRate;
+    function earned(address account) public view returns (uint256) {
+        uint256 stakedTime = block.timestamp - stakes[account].lastUpdateTime;
+        uint256 dailyRate = dailyRewardRate;
+        uint256 reward = stakes[account].reward;
+        return ((stakes[account].amount * stakedTime * dailyRate / 1e18) / 86400) + reward;
     }
 }
