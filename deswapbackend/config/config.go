@@ -11,6 +11,7 @@ const (
 	defaultDbName     = "deswapdb"
 	defaultDbUser     = "postgres"
 	defaultDbPassword = "azerty"
+	defaultSSLMode    = "disable"
 )
 
 // Config structure contient les paramètres de configuration pour la base de données
@@ -20,6 +21,7 @@ type Config struct {
 	DbName     string
 	DbUser     string
 	DbPassword string
+	SSLMode    string
 }
 
 // getEnv retourne la valeur de la variable d'environnement si elle est définie et non vide
@@ -40,5 +42,6 @@ func LoadConfig() Config {
 		DbName:     getEnv("DB_NAME", defaultDbName),
 		DbUser:     getEnv("DB_USER", defaultDbUser),
 		DbPassword: getEnv("DB_PASSWORD", defaultDbPassword),
+		SSLMode:    getEnv("SSL_MODE", defaultSSLMode),
 	}
 }

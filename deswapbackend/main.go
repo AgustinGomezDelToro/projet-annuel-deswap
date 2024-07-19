@@ -4,13 +4,20 @@ import (
 	"deswapbackend/config"
 	"deswapbackend/controllers"
 	"deswapbackend/database"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	log "github.com/sirupsen/logrus"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Charger les variables d'environnement
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	app := fiber.New()
 
 	// Middleware CORS pour autoriser toutes les adresses IP
@@ -35,9 +42,8 @@ func main() {
 	app.Put("/admin/users/unban/:publicKey", controllers.UnbanUser)
 	app.Put("/admin/users/promote/:publicKey", controllers.PromoteUser)
 
-   // verifier si un utilisateur est admin
-    app.Get("/isAdmin/:publicKey", controllers.IsAdmin)
-
+	// verifier si un utilisateur est admin
+	app.Get("/isAdmin/:publicKey", controllers.IsAdmin)
 
 	// Configurer les routes pour les tokens
 	app.Get("/tokens", controllers.GetAllTokens)
@@ -58,6 +64,6 @@ func main() {
 	app.Get("/fees/token/:tokenID", controllers.GetFeesByToken)
 	app.Get("/fees/wallet/:walletID", controllers.GetFeesByWallet)
 
-	log.Info("Server started on port 3001")
+	log.Println("Server started on port 3001")
 	app.Listen(":3001")
 }
