@@ -1,6 +1,5 @@
 import { BrowserProvider, ethers } from "ethers";
-import SimpleERC20ABI from "./abi.json";
-import SimpleERC20Bytecode from "./bytecode.json";
+import { SimpleERC20ABI, SimpleERC20Bytecode } from "./SimpleERC20";
 
 interface DeployProps {
     name: string;
@@ -27,4 +26,4 @@ export const deploy = async ({ name, symbol, setMessage, setNotification, wallet
         setNotification(true);
         return null;
     }
-}
+};

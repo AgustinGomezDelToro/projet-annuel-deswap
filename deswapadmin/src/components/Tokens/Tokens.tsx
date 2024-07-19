@@ -1,13 +1,13 @@
-import { Link } from "react-router-dom";
-import { cropAddress } from "../../asset/utils/cropAddress";
-import Title from "../Title/Title";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useWeb3ModalProvider } from "@web3modal/ethers/react";
 import { IToken } from "../../interfaces/Tokens";
 import TokenService from "../../services/Token";
 import { pinFileToIPFS } from "../../asset/utils/files";
 import StackedNotifications from "../Notifications/Notifications";
 import { deploy } from "../../asset/utils/SimpleERC20/deployContract";
-import { useWeb3ModalProvider } from "@web3modal/ethers/react";
+import Title from "../Title/Title";
+import { cropAddress } from "../../asset/utils/cropAddress";
 
 const Tokens = () => {
     const [tokens, setTokens] = useState<IToken[] | null>(null);
@@ -45,7 +45,7 @@ const Tokens = () => {
                 return;
             }
             if (!address) {
-                address = await deploy({ name, symbol, setMessage, setNotification, walletProvider }) as string;
+                address = await deploy({name, symbol, setMessage, setNotification, walletProvider}) as string;
             }
             setMessage("Adding token to list...");
             setNotification(true);
