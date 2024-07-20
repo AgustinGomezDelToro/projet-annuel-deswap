@@ -2,99 +2,79 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../src/StakingContract.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../src/Staking.sol";
+import "./MockESGIDex.sol"; // Import the MockESGIDex contract
 
-contract MockToken is ERC20 {
-    constructor() ERC20("Mock Token", "MTK") {
-        _mint(msg.sender, 1000000 * 10 ** 18);
-    }
-
-    function mint(address to, uint256 amount) public {
-        _mint(to, amount);
-    }
-}
-
-contract StakingContractTest is Test {
-    MockToken public stakingToken;
-    StakingContract public stakingContract;
+contract StakingTest is Test {
+    Staking public stakingContract;
+    MockESGIDex public esgiDex; // Mock ESGIDex contract
     address public user = address(1);
-    address public feeCollector = address(2);
 
     function setUp() public {
-        stakingToken = new MockToken();
-        stakingContract = new StakingContract(address(stakingToken), feeCollector);
-        stakingToken.transfer(user, 1000 * 10 ** 18);
+        esgiDex = new MockESGIDex(); // Deploy the mock ESGIDex contract
+        stakingContract = new Staking(1e16, address(this), payable(address(esgiDex))); // Initialize staking contract with mock ESGIDex
+        vm.deal(user, 100 ether); // Assign 100 ether to user for tests
     }
 
     function testStake() public {
         vm.startPrank(user);
-        stakingToken.approve(address(stakingContract), 500 * 10 ** 18);
-        stakingContract.stake(500 * 10 ** 18);
-        uint256 fee = (500 * 10 ** 18) / 100;
-        uint256 stakedAmount = 500 * 10 ** 18 - fee;
-        assertEq(stakingToken.balanceOf(user), 1000 * 10 ** 18 - 500 * 10 ** 18);
-        assertEq(stakingContract.stakingBalance(user), stakedAmount);
-        assertEq(stakingToken.balanceOf(feeCollector), fee);
+        uint256 amount = 10 ether;
+        stakingContract.stake{value: amount}();
+        assertEq(stakingContract.getAmountStaked(user), amount);
+        assertEq(address(stakingContract).balance, amount);
         vm.stopPrank();
     }
 
-    function testWithdraw() public {
+    function testUnstake() public {
         vm.startPrank(user);
-        stakingToken.approve(address(stakingContract), 500 * 10 ** 18);
-        stakingContract.stake(500 * 10 ** 18);
-        uint256 stakeFee = (500 * 10 ** 18) / 100;
-        uint256 stakedAmount = 500 * 10 ** 18 - stakeFee;
-        stakingContract.withdraw(200 * 10 ** 18);
-        uint256 withdrawFee = (200 * 10 ** 18) / 100;
-        uint256 withdrawnAmount = 200 * 10 ** 18 - withdrawFee;
-        uint256 remainingStake = stakedAmount - 200 * 10 ** 18;
-        assertEq(stakingToken.balanceOf(user), 1000 * 10 ** 18 - 500 * 10 ** 18 + withdrawnAmount);
-        assertEq(stakingContract.stakingBalance(user), remainingStake);
-        assertEq(stakingToken.balanceOf(feeCollector), stakeFee + withdrawFee);
+        uint256 amount = 10 ether;
+        stakingContract.stake{value: amount}();
+
+        console.log("Balance after staking:", stakingContract.getAmountStaked(user));
+        console.log("Total supply after staking:", stakingContract.getAllEthStaked());
+
+        vm.deal(address(stakingContract), amount);
+
+        stakingContract.unstake(amount);
+
+        console.log("Balance after unstaking:", stakingContract.getAmountStaked(user));
+        console.log("Total supply after unstaking:", stakingContract.getAllEthStaked());
+
+        assertEq(stakingContract.getAmountStaked(user), 0);
+        assertEq(address(stakingContract).balance, 0);
         vm.stopPrank();
     }
 
-    function testGetReward() public {
+    function testClaimRewards() public {
         vm.startPrank(user);
-        stakingToken.approve(address(stakingContract), 500 * 10 ** 18);
-        stakingContract.stake(500 * 10 ** 18);
+        uint256 amount = 10 ether;
+        stakingContract.stake{value: amount}();
+        uint256 initialBalance = user.balance;
 
-        // Calculate fee on stake
-        uint256 stakeFee = (500 * 10 ** 18) / 100;
-        uint256 stakedAmount = 500 * 10 ** 18 - stakeFee;
+        // Advance time to generate rewards
+        vm.warp(block.timestamp + 1 days);
 
-        // Advance 10 blocks
-        vm.roll(block.number + 10);
+        uint256 reward = stakingContract.stakes(user).rewardDebt;
+        console.log("Reward earned after 1 day:", reward);
 
-        // Access the rewardRate from the stakingContract instance
-        uint256 rewardRate = stakingContract.getRewardRate();  // Using the method to get the current reward rate
+        // Ensure the contract has enough funds to pay rewards
+        vm.deal(address(stakingContract), reward);
 
-        // Calculate the expected reward
-        uint256 reward = stakedAmount * 10 * rewardRate;  // Correct usage of the reward rate
+        stakingContract.claimRewards();
 
-        // Ensure the contract has enough tokens to pay the reward
-        stakingToken.mint(address(stakingContract), reward);
+        // Verify rewards are paid
+        uint256 newBalance = user.balance;
+        console.log("User balance after claiming reward:", newBalance);
+        console.log("Contract balance after claiming reward:", address(stakingContract).balance);
 
-        stakingContract.getReward();
-
-        // Verify the user's balance is updated correctly after receiving the reward
-        assertEq(stakingToken.balanceOf(user), 1000 * 10 ** 18 - 500 * 10 ** 18 + reward);
-        assertEq(stakingContract.rewards(user), 0);  // Ensure the rewards are reset after claiming
+        assertGt(newBalance, initialBalance); // Balance after claim should be greater
         vm.stopPrank();
     }
 
-
-
-    function testFeeCollection() public {
-        vm.startPrank(user);
-        stakingToken.approve(address(stakingContract), 500 * 10 ** 18);
-        stakingContract.stake(500 * 10 ** 18);
-        uint256 stakeFee = (500 * 10 ** 18) / 100;
-        assertEq(stakingToken.balanceOf(feeCollector), stakeFee);
-        stakingContract.withdraw(200 * 10 ** 18);
-        uint256 withdrawFee = (200 * 10 ** 18) / 100;
-        assertEq(stakingToken.balanceOf(feeCollector), stakeFee + withdrawFee);
+    function testSetRewardRate() public {
+        vm.startPrank(address(esgiDex)); // Use mock ESGIDex address
+        stakingContract.setRewardRate(2e16); // 2% per day
+        assertEq(stakingContract.rewardRate(), 2e16);
         vm.stopPrank();
     }
 }
