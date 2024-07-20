@@ -24,20 +24,21 @@ export default function ConnectButton() {
                 const signature = await signer.signMessage(message);
                 if (signature) {
                     try {
-                        const response = await axios.get(`${process.env.REACT_APP_API_URL}/isAdmin/${address}`);
+                        const response = await axios.get(`http://localhost:3001/isAdmin/${address}`);
                         if (response.data.message === "User is an admin") {
                             setIsAdmin(true);
                         } else {
+                            alert("You are not an admin. Access denied.");
                             disconnect();
                         }
                     } catch (error) {
                         disconnect();
-                        console.log(error);
+                        console.log("Error checking admin status:", error);
                     }
                 }
             } catch (error) {
                 disconnect();
-                console.log(error);
+                console.log("Error signing message:", error);
             }
         }
 
