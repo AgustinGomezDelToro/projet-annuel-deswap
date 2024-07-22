@@ -8,7 +8,7 @@ contract DeployMyToken is Script {
     function run() external {
         vm.startBroadcast();
 
-        MyToken myToken = new MyToken("RMCF", "Real Madrid", 2500000 * 10 ** 18);
+        MyToken myToken = new MyToken("ESGI", "ESGI", 2500000 * 10 ** 18);
 
         console.log("Contract Address:", address(myToken));
         console.log("Token name:", myToken.name());
