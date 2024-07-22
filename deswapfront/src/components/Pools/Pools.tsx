@@ -4,6 +4,7 @@ import "./Pools.scss";
 import { PoolInterface } from "../../interfaces/Pools";
 import { Link } from "react-router-dom";
 import PoolService from "../../services/Pools";
+import MouseLightEffect from "../Home/MouseLightEffect";
 
 const Pools = () => {
     const [pools, setPools] = useState<PoolInterface[]>([]);
@@ -24,6 +25,7 @@ const Pools = () => {
 
     return (
         <div className="w-full min-h-screen pt-24 bg-dark-background text-white">
+            <MouseLightEffect />
             <div className="w-full max-w-5xl mx-auto">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold p-4 text-gradient">All pools</h1>

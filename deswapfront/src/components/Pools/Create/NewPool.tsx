@@ -7,8 +7,17 @@ import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { SimpleTokensContext } from "../../../utils/hooks/SimpleTokens";
 import { ethers } from "ethers";
 import Token from "../../../services/Tokens";
+import PoolService from "../../../services/Pools"; // Importer le service PoolService
 import { useLocation } from "react-router-dom";
 import MouseLightEffect from "../../Home/MouseLightEffect";
+
+export interface CreatePoolInterface {
+    TokenA: string;
+    TokenB: string;
+    supplyA: number;
+    supplyB: number;
+    PoolAddress: string;
+}
 
 const NewPool = () => {
     const [scope, animate] = useAnimate();
@@ -46,9 +55,7 @@ const NewPool = () => {
         }
 
         fetchData();
-    }, []);
-
-
+    }, [searchParams]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -64,11 +71,11 @@ const NewPool = () => {
                 const pairAddress = await getPairAddress(token1?.address!, token2?.address!);
                 setPairAddress(pairAddress);
             }
-        }
+        };
         if (isConnected) {
             fetchData();
         }
-    }, [token1, token2, isConnected]);
+    }, [token1, token2, isConnected, address, getBalance, getPairAddress]);
 
     async function calculateAmoutB(amountA: number) {
         if (pairAddress) {
@@ -89,6 +96,22 @@ const NewPool = () => {
         const length = pools[0].length - 1;
         new Token().update(token1?.ID!, token1?.name!, token1?.symbole!, token1?.address!, token1?.logo!, token1?.price!, pools[0][length]);
         new Token().update(token2?.ID!, token2?.name!, token2?.symbole!, token2?.address!, token2?.logo!, token2?.price!, pools[0][length]);
+    
+        // Appel à l'API backend pour enregistrer la pool
+        const newPool: CreatePoolInterface = {
+            TokenA: token1?.address!,
+            TokenB: token2?.address!,
+            supplyA: amount1,
+            supplyB: amount2,
+            PoolAddress: pools[0][length],
+        };
+    
+        try {
+            await PoolService.create(newPool);
+            console.log("Pool created in backend successfully.");
+        } catch (error) {
+            console.error("Error creating pool in backend: ", error);
+        }
     }
 
     async function addLiq() {
@@ -221,9 +244,17 @@ const NewPool = () => {
                                 "Create pool"
                         }
                     </button>
+                    {pairAddress && (
+                        <div className='mt-4'>
+                            <label className="text-gray-400 font-medium">Pool Address</label>
+                            <div className='mt-2 bg-dark-input border-dark-border border rounded-lg p-4 w-full'>
+                                <p className='text-white break-all'>{pairAddress}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
 

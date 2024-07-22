@@ -1,6 +1,7 @@
 import axios from "axios";
 import { PoolInterface } from "../interfaces/Pools";
 import { TokenInterface } from '../interfaces/Tokens';
+import { CreatePoolInterface } from "../components/Pools/Create/NewPool";
 
 const API_URL = 'http://localhost:3001/pools';
 const TOKEN_API_URL = 'http://localhost:3001/tokens';
@@ -75,8 +76,8 @@ class PoolService {
         return response.data;
     }
 
-    static async create(pool: PoolInterface) {
-        const response = await axios.post(API_URL, pool);
+    static async create(pool: CreatePoolInterface): Promise<PoolInterface> {
+        const response = await axios.post<PoolInterface>(API_URL, pool);
         return response.data;
     }
 
