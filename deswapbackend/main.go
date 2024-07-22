@@ -42,7 +42,7 @@ func main() {
 	app.Put("/admin/users/unban/:publicKey", controllers.UnbanUser)
 	app.Put("/admin/users/promote/:publicKey", controllers.PromoteUser)
 
-	// verifier si un utilisateur est admin
+	// vérifier si un utilisateur est admin
 	app.Get("/isAdmin/:publicKey", controllers.IsAdmin)
 
 	// Configurer les routes pour les tokens
@@ -63,6 +63,10 @@ func main() {
 	app.Get("/fees/user/:userID", controllers.GetFeesByUser)
 	app.Get("/fees/token/:tokenID", controllers.GetFeesByToken)
 	app.Get("/fees/wallet/:walletID", controllers.GetFeesByWallet)
+
+	// Configurer les routes pour les pools
+	app.Get("/pools", controllers.GetAllPools)
+	app.Post("/pools/add", controllers.AddPool)
 
 	log.Println("Server started on port 3001")
 	app.Listen(":3001")

@@ -6,12 +6,12 @@ import (
 
 // Déclaration des constantes de configuration par défaut pour la base de données
 const (
-	defaultDbHost     = "localhost"
+	defaultDbHost     = "ep-calm-sun-a2vzni0d.eu-central-1.aws.neon.tech"
 	defaultDbPort     = "5432"
-	defaultDbName     = "deswapdb"
-	defaultDbUser     = "postgres"
-	defaultDbPassword = "azerty"
-	defaultSSLMode    = "disable"
+	defaultDbName     = "deswap"
+	defaultDbUser     = "deswap_owner"
+	defaultDbPassword = "tWvV9kaLuT2y"
+	defaultSSLMode    = "require"
 )
 
 // Config structure contient les paramètres de configuration pour la base de données
