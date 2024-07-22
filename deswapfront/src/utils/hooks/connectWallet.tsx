@@ -31,7 +31,7 @@ export default function ConnectButton() {
                         const provider = new BrowserProvider(walletProvider as any);
                         const randomBytes = ethers.hexlify(ethers.randomBytes(16));
                         const now = new Date();
-                        const message = `By signing this message, I allow the DeSwap App to save your public key.\n\nNonce: ${randomBytes} - ${now.toISOString()}`;
+                        const message = `j'accept garder ma clé publique dans DESWAP.\n\nNonce: ${randomBytes} - ${now.toISOString()}`;
                         const signer = await provider.getSigner();
                         const signature = await signer?.signMessage(message);
                         if (signature) {
