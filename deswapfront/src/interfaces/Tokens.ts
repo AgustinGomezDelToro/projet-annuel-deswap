@@ -5,5 +5,6 @@ export interface TokenInterface {
     name: string;
     price: number;
     symbole: string;
+    pools: number;
     volume?: number;
   }

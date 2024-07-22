@@ -1,8 +1,8 @@
 import { BrowserProvider, ethers } from 'ethers';
 import { useDisconnect, useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider } from '@web3modal/ethers/react';
 import "../../styles/index.scss";
-import logo1 from "../../utils/asset/images/logo1.png";
 import { useEffect } from 'react';
+import User from '../../services/User';
 import axios from 'axios';
 
 export default function ConnectButton() {
@@ -73,11 +73,10 @@ export default function ConnectButton() {
     }, [isConnected, address]);
 
     return (
-        <button className='text-white' onClick={() => open()}>
+        <button className='connect-button' onClick={() => open()}>
             {
                 isConnected ?
                     <span className='flex items-center gap-1 py-1.5 px-4'>
-                        <img className='h-8' src={logo1} alt='logo' />
                         {address?.slice(0, 5)}...{address?.slice(address.length - 5)}
                     </span>
                     :

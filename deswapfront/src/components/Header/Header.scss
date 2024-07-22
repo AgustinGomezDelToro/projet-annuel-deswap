@@ -1,0 +1,55 @@
+.futuristic-header {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .container {
+    max-width: 1200px;
+  }
+  
+  .text-neon {
+    color: #00ffa3;
+  }
+  
+  .text-highlight {
+    color: #00cfff;
+  }
+  
+  .nav-link {
+    color: #00ffa3;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #00cfff;
+  }
+  
+  .connect-button {
+    background: linear-gradient(90deg, #00ffa3, #00cfff);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+    font-size: 1rem;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .connect-button:hover {
+    background: linear-gradient(90deg, #00cfff, #00ffa3);
+    transform: scale(1.05);
+  }
+  
+  button svg {
+    transition: stroke 0.3s ease;
+  }
+  
+  button:hover svg {
+    stroke: #00cfff;
+  }
+  

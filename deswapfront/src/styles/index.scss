@@ -4,44 +4,36 @@
 
 @import "./global.scss";
 
-.bg {
-  background-color: $gray1;
-  // background-image:
-  //     radial-gradient(at 0% 100%, rgba(red($green1), green($green1), blue($green1), 0.3) 0, transparent 20%),
-  //     radial-gradient(at 90% 100%, rgba(red($yellow), green($yellow), blue($yellow), 0.3) 0, transparent 50%),
-  //     radial-gradient(at 55% 10%, rgba(red($green1), green($green1), blue($green1), 0.2) 0, transparent 40%),
-  //     radial-gradient(at 25% 50%, rgba(red($yellow), green($yellow), blue($yellow), 0.3) 0, transparent 50%);
-}
+
 
 .connectButton {
   --button_radius: 0.75em;
   --button_color: #EEEEEE; // $white2
-  --button_outline_color: #cc2500; // Ajustado a tu color preferido
+  --button_outline_color: #292524; // $black1
   font-weight: 700;
   border: none;
   border-radius: var(--button_radius);
-  padding: 0.75em 1.5em;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background: var(--button_outline_color);
+}
 
-  span {
-    box-sizing: border-box;
-    border: 1px solid var(--button_outline_color); // Borde ajustado
-    border-radius: var(--button_radius);
-    background: var(--button_color);
-    color: var(--button_outline_color);
-    font-size: 0.9rem;
-    padding: 0.75em 1.5em; // Ajuste de padding para igualar el estilo
-    transition: background-color 0.3s ease;
+.connectButton span {
+  box-sizing: border-box;
+  // padding: 0.75em 1.5em;
+  border: 2px solid var(--button_outline_color);
+  border-radius: var(--button_radius);
+  background: var(--button_color);
+  color: var(--button_outline_color);
+  transform: translateY(-0.2em);
+  transition: transform 0.1s ease;
+  font-size: 0.9rem;
+}
 
-    &:hover {
-      background: #dcdcdc; // Ajusta este color al tono claro que prefieras
-    }
-  }
+button:hover span {
+  /* Pull the button upwards when hovered */
+  transform: translateY(-0.33em);
+}
 
-  &:hover span {
-    background: #dcdcdc; // Ajusta este color al tono claro que prefieras
-  }
+button:active span {
+  /* Push the button downwards when pressed */
+  transform: translateY(0);
 }

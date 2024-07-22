@@ -1,19 +1,22 @@
 import './styles/app.scss';
 import Header from './components/Header/Header';
 import { Route, Routes } from 'react-router-dom';
-import NotFound from './components/404/404';
+import NotFound from './components/Errors/404';
 import Home from './components/Home/Home';
 import Swap from './components/Swap/Swap';
 import Tokens from './components/Tokens/Tokens';
 import Pools from './components/Pools/Pools';
 import Pool from './components/Pools/Pool/Pool';
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react'
+import { createWeb3Modal, defaultConfig, useWeb3ModalAccount } from '@web3modal/ethers/react'
 import NewPool from './components/Pools/Create/NewPool';
+import ConnectButton from './utils/hooks/connectWallet';
+import Unauthorized from './components/Errors/401';
+import Profile from './components/Profile/Profile';
 
 function App() {
 
   // 1. Get projectId at https://cloud.walletconnect.com
-  const projectId = 'e20faa0911a9c960827e06ea6f656510' // METTRE DANS LE .ENV
+  const projectId = 'c4c9fb94605ef75f7878b0f8f7452e7d' // METTRE DANS LE .ENV
 
   // 2. Set chains
   const chains = [{
@@ -26,8 +29,8 @@ function App() {
 
   // 3. Create modal
   const metadata = {
-    name: 'DeSwap',
-    description: 'DeSwap dapp',
+    name: 'PouSwap',
+    description: 'PouSwap dapp',
     url: '', // origin must match your domain & subdomain
     icons: ['https://avatars.mywebsite.com/']
   }
@@ -43,18 +46,28 @@ function App() {
     themeMode: 'dark'
   })
 
+  const { isConnected } = useWeb3ModalAccount();
+
   return (
     <div className='min-h-screen bg'>
       <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/swap" element={<Swap />} />
-        <Route path="/tokens" element={<Tokens />} />
-        <Route path="/pools" element={<Pools />} />
-        <Route path="/pools/:id" element={<Pool />} />
-        <Route path="/create" element={<NewPool />} />
-        <Route path='*' element={<NotFound />} />
-      </Routes>
+      {isConnected ?
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/swap" element={<Swap />} />
+          <Route path="/tokens" element={<Tokens />} />
+          <Route path="/pools" element={<Pools />} />
+          <Route path="/pools/:id" element={<Pool />} />
+          <Route path="/create" element={<NewPool />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path='*' element={<NotFound />} />
+        </Routes>
+        :
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='*' element={<Unauthorized />} />
+        </Routes>
+      }
     </div>
   );
 }

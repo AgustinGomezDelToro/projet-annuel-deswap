@@ -1,62 +1,30 @@
-.title {
-    background: linear-gradient(180deg, #065c6c, rgb(60, 126, 196), rgb(60, 126, 196), #065c6c);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
+body {
+    background: #0A0A0A;
+    color: #FFFFFF;
+    font-family: 'Roboto', sans-serif;
+    overflow: hidden;
+    margin: 0;
 }
 
-.content .left {
-    animation: scrollTop 15s linear infinite;
+.futuristic-background {
+    background: linear-gradient(180deg, #0A0A0A, #111111);
 }
 
-.content .right {
-    animation: scrollBottom 15s linear infinite;
+.text-neon {
+    color: #00FFA3;
 }
 
-.top{
-    animation: scrollLeft 15s linear infinite;
+.text-highlight {
+    color: #00CFFF;
 }
 
-.bottom{
-    animation: scrollRight 15s linear infinite;
+.text-neon-subtext {
+    color: rgba(0, 255, 163, 0.8);
 }
 
-@keyframes scrollLeft {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    100% {
-        transform: translate(-101%, 0);
-    }
-}
-
-@keyframes scrollRight {
-    0% {
-        transform: translate(0%, 0);
-    }
-
-    100% {
-        transform: translate(101%, 0);
-    }
-}
-
-@keyframes scrollTop {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    100% {
-        transform: translate(0, -101%);
-    }
-}
-
-@keyframes scrollBottom {
-    0% {
-        transform: translate(0, -101%);
-    }
-
-    100% {
-        transform: translate(0, 0%);
-    }
+.home-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
 }

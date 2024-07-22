@@ -1,0 +1,28 @@
+.logo-container {
+    position: absolute;
+    top: 100vh; /* Start from the bottom of the viewport */
+    right: 50px; /* Adjust this value to add margin from the right */
+    width: 120px; /* Adjust this to fit the desired width */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    animation: scrollVertical 30s linear infinite;
+    transform: rotate(5deg); /* Slightly rotate the container */
+  }
+  
+  .logo {
+    width: 80px; /* Adjust this to fit the desired size */
+    height: 80px; /* Adjust this to fit the desired size */
+    margin: 20px 0; /* Adjust spacing between logos */
+  }
+  
+  @keyframes scrollVertical {
+    0% {
+      transform: translateY(100%) rotate(5deg); /* Start from below the viewport */
+    }
+    100% {
+      transform: translateY(-200%) rotate(5deg); /* Move above the viewport */
+    }
+  }
+  

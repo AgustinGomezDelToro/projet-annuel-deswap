@@ -1,22 +1,27 @@
 import "./Home.scss";
-import { tokens } from "../../utils/asset/tokens";
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import RandomLogo from "./RandomLogo"; // Import the RandomLogo component
+import MouseLightEffect from "./MouseLightEffect"; // Import the MouseLightEffect component
 
 const Home = () => {
     return (
-        <div className="bg-customLight flex items-center justify-center min-h-screen">
-            <div className="text-center">
-                <h1 className="font-bold text-4xl md:text-5xl mb-4 text-colors-black1">
+        <div className="home-container futuristic-background">
+            <MouseLightEffect />
+            <div className="z-10 mt-20 md:mt-0 md:absolute md:left-5 md:top-[40%] w-full md:w-1/2">
+                <h1 className="font-bold text-6xl md:text-7xl mb-4 text-center md:text-left text-neon">
                     Welcome to
-                    <label className="text-colors-green1"> DeSwap</label>
+                    <motion.label 
+                        className="text-highlight"
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                    > DeSwap</motion.label>
                 </h1>
-                <p className="text-colors-black2 text-xl md:text-2xl mb-6 italic">
-                    Innovating the world of finance, inspired by ESGI.
+                <p className="text-neon-subtext text-3xl px-4 md:px-0 md:text-4xl md:w-10/12 italic text-center md:text-left">
+                    Empowering the future, one decentralized exchange at a time.
                 </p>
-                <Link to="/swap" className="bg-green-500 text-white px-4 py-2 rounded-lg font-bold text-lg">
-                    Go to Swap
-                </Link>
             </div>
+
+            <RandomLogo />
         </div>
     );
 }

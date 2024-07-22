@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { TokenInterface } from "../interfaces/Tokens";
-import Token from "../services/Assets";
+import { TokenInterface } from "../../interfaces/Tokens";
+import Token from "../../services/Tokens";
 
 interface TokenPopupProps {
-    setToken: (token: string) => void;
+    setToken: (token: TokenInterface) => void;
     close: () => void;
 }
 
@@ -21,7 +21,7 @@ const TokenPopup = ({ setToken, close }: TokenPopupProps) => {
 
     return (
         <div className="fixed z-50 bg-black/30 h-screen w-full flex items-center justify-center">
-            <div className="relative bg-white w-1/4 rounded-lg p-4">
+            <div className="relative bg-colors-gray2 w-1/4 rounded-lg p-4">
                 <div className="flex justify-between border-b border-colors-black2/40 -mx-4 px-4 pb-3 mb-4">
                     <p className="">Select a token</p>
                     <button onClick={close}>
@@ -41,7 +41,11 @@ const TokenPopup = ({ setToken, close }: TokenPopupProps) => {
                                 <img src={`https://ipfs.io/ipfs/${token.logo}`} alt={token.name} className="w-8 h-8 rounded-full" />
                                 <p className="ml-2">{token.name}</p>
                             </div>
-                            <button onClick={() => setToken(token.symbole)} className="text-colors-green1/80 group-hover:text-colors-green1">Select</button>
+                            <button onClick={() => {
+                                setToken(token);
+                                close();
+                            }}
+                                className="text-colors-green1/80 group-hover:text-colors-green1">Select</button>
                         </div>
                     ))}
                 </div>

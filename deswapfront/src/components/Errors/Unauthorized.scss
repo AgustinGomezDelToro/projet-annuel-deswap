@@ -1,0 +1,46 @@
+.unauthorized-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #121212;
+    padding: 0 2rem;
+}
+
+.unauthorized-content {
+    text-align: center;
+    background: #1b1b1b;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.unauthorized-title {
+    color: #00ffa3;
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.unauthorized-message {
+    color: #aaa;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.unauthorized-connect {
+    display: inline-block;
+    background: linear-gradient(90deg, #00ffa3, #00cfff);
+    border-radius: 5px;
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+    color: #121212;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.unauthorized-connect:hover {
+    background: linear-gradient(90deg, #00cfff, #00ffa3);
+}
