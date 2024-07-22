@@ -2,14 +2,12 @@ import React, { ReactNode, useEffect, useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Title from "../Title/Title";
-import { twMerge } from "tailwind-merge";
 import TransactionsList from "./TransactionsList";
 import CustomLineChart from "./LineChart";
 import '../../../src/index.css';
 import { IUser } from "../../interfaces/Users";
 import User from "../../services/User";
 import { BlockchainContext } from "../../asset/hooks/blockchain";
-
 
 const Dashboard: React.FC = () => {
     const address = "0x351024A4EC50612C8D1CF70cd508F77f37Da53F8";
@@ -25,8 +23,8 @@ const Dashboard: React.FC = () => {
             const userService = new User();
             const users = await userService.getAll();
             setUsers(users);
-            const banned = users.filter((user: IUser) => user.status === "ban");
-            setBanned(banned);
+            const bannedUsers = users.filter((user: IUser) => user.is_banned);
+            setBanned(bannedUsers);
         }
 
         fetchData();
@@ -97,6 +95,14 @@ const BounceCard = ({ children }: { children: ReactNode }) => {
 const CardTitle = ({ children }: { children: ReactNode }) => {
     return (
         <h3 className="text-center text-2xl font-semibold">{children}</h3>
+    );
+};
+
+const Block = ({ children }: { children: ReactNode }) => {
+    return (
+        <div className="p-4 bg-gray-300 rounded-lg">
+            {children}
+        </div>
     );
 };
 
