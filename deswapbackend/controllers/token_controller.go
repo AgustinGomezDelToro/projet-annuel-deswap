@@ -40,10 +40,11 @@ func UpdateToken(c *fiber.Ctx) error {
 
 // GetByAddress récupère un token spécifique de la base de données en utilisant l'adresse fournie en tant que paramètre de requête.
 // Renvoie le token trouvé en tant que réponse JSON.
-func GetByAddress(c *fiber.Ctx) error {
+// GetTokenByAddress récupère un token par son adresse
+func GetTokenByAddress(c *fiber.Ctx) error {
 	address := c.Params("address")
 	var token models.Token
-	if result := database.DB.Where("address = ?", address).First(&token); result.Error != nil {
+	if err := database.DB.Where("address = ?", address).First(&token).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Token not found"})
 	}
 	return c.JSON(token)

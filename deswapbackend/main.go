@@ -49,7 +49,7 @@ func main() {
 	app.Get("/tokens", controllers.GetAllTokens)
 	app.Post("/tokens/add", controllers.AddToken)
 	app.Put("/tokens/update", controllers.UpdateToken)
-	app.Get("/tokens/:address", controllers.GetByAddress)
+	app.Get("/tokens/:address", controllers.GetTokenByAddress)
 	app.Delete("/tokens/:address", controllers.DeleteToken)
 
 	// Configurer les routes pour l'historique

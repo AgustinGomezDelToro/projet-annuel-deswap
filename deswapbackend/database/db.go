@@ -15,7 +15,7 @@ import (
 var DB *gorm.DB
 
 // ConnectDatabase établit une connexion à la base de données en utilisant la configuration fournie.
-// Il effectue également les migrations automatiques des modèles User, Token, History et Fee.
+// Il effectue également les migrations automatiques des modèles User, Token, History, Fee et Pool.
 func ConnectDatabase(cfg config.Config) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		cfg.DbHost, cfg.DbUser, cfg.DbPassword, cfg.DbName, cfg.DbPort, cfg.SSLMode)
