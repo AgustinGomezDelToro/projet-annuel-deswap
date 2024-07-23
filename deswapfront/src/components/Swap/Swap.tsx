@@ -75,7 +75,6 @@ const Swap = () => {
         const swap = await swapFrom({ pairAddress: pairAddress!, amount: ethers.parseEther(amount1.toString()), tokenAddress: token1.address });
         if (swap) {
             const user = await new User().getOneByPublicKey(address!);
-            await new User().update(user.public_key, user.signature, user.swap + 1, user.role, user.status);
         }
     }
 

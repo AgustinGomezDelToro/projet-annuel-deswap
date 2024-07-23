@@ -20,7 +20,7 @@ class User {
         return response.data;
     }
 
-    update = async (user: IUser) => { // TODO : verifier si c'est put + ajouter bearer token
+    update = async (user: IUser) => {
         const response = await axios.put(
             `${process.env.REACT_APP_API_URL}/users/update`,
             user 

@@ -5,6 +5,7 @@ import { cropAddress } from "../../asset/utils/cropAddress";
 import StackedNotifications from "../Notifications/Notifications";
 import { SafeContext } from "../../asset/hooks/safe";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 enum ActionType {
     ban = "ban",
@@ -50,7 +51,7 @@ const Users = () => {
 
         try {
             let url = '';
-            let method = 'PUT'; // Changer la méthode à PUT
+            let method = 'PUT';
 
             switch (actionActive) {
                 case ActionType.ban:
@@ -105,93 +106,99 @@ const Users = () => {
                         <div className="overflow-hidden border border-gray-200 md:rounded-lg">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="py-3.5 px-4 text-sm font-normal text-gray-500">
-                                            <button className="flex items-center gap-x-3 focus:outline-none">
-                                                <span>#ID</span>
-                                            </button>
-                                        </th>
-                                        <th scope="col" className="px-12 py-3.5 text-sm font-normal text-gray-500 text-center">
-                                            Public key
-                                        </th>
-                                        <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">
-                                            Signature
-                                        </th>
-                                        <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">Status</th>
-                                        <th scope="col" className="relative py-3.5 px-4">
-                                            <span className="sr-only">Edit</span>
-                                        </th>
-                                    </tr>
+                                <tr>
+                                    <th scope="col" className="py-3.5 px-4 text-sm font-normal text-gray-500">
+                                        <button className="flex items-center gap-x-3 focus:outline-none">
+                                            <span>#ID</span>
+                                        </button>
+                                    </th>
+                                    <th scope="col" className="px-12 py-3.5 text-sm font-normal text-gray-500 text-center">
+                                        Public key
+                                    </th>
+                                    <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">
+                                        Signature
+                                    </th>
+                                    <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">Status</th>
+                                    <th scope="col" className="px-4 py-3.5 text-sm font-normal text-gray-500 text-center">Transactions</th>
+                                    <th scope="col" className="relative py-3.5 px-4">
+                                        <span className="sr-only">Edit</span>
+                                    </th>
+                                </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {users && users.map((user, index) => (
-                                        <tr key={index}>
-                                            <td className="px-4 py-4 text-sm font-medium whitespace-nowrap">
-                                                <div>
-                                                    <h2 className="font-medium text-gray-800">{user.ID}</h2>
+                                {users && users.map((user, index) => (
+                                    <tr key={index}>
+                                        <td className="px-4 py-4 text-sm font-medium whitespace-nowrap">
+                                            <div>
+                                                <h2 className="font-medium text-gray-800">{user.ID}</h2>
+                                            </div>
+                                        </td>
+                                        <td className="px-12 py-4 text-sm font-medium whitespace-nowrap text-center">
+                                            <h4 className="text-gray-700">{cropAddress(user.public_key)}</h4>
+                                        </td>
+                                        <td className="px-4 py-4 text-sm whitespace-nowrap text-center">
+                                            <div>
+                                                <h4 className="text-gray-700">{cropAddress(user.signature)}</h4>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4 text-sm whitespace-nowrap text-center">
+                                            {user.is_banned ?
+                                                <div className="inline px-3 py-1 text-sm font-normal rounded-full text-red-500 gap-x-2 bg-red-100/60">
+                                                    Banned
                                                 </div>
-                                            </td>
-                                            <td className="px-12 py-4 text-sm font-medium whitespace-nowrap text-center">
-                                                <h4 className="text-gray-700">{cropAddress(user.public_key)}</h4>
-                                            </td>
-                                            <td className="px-4 py-4 text-sm whitespace-nowrap text-center">
-                                                <div>
-                                                    <h4 className="text-gray-700">{cropAddress(user.signature)}</h4>
+                                                :
+                                                <div className="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60">
+                                                    Active
                                                 </div>
-                                            </td>
-                                            <td className="px-4 py-4 text-sm whitespace-nowrap text-center">
-                                                {user.is_banned ?
-                                                    <div className="inline px-3 py-1 text-sm font-normal rounded-full text-red-500 gap-x-2 bg-red-100/60">
-                                                        Banned
-                                                    </div>
-                                                    :
-                                                    <div className="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60">
-                                                        Active
-                                                    </div>
-                                                }
-                                            </td>
-                                            <td className="px-4 py-4 space-x-2 text-sm text-right whitespace-nowrap">
-                                                {user.is_banned ?
-                                                    <button onClick={() => action(user, ActionType.unban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-emerald-400 hover:bg-emerald-500 focus:outline-none">
-                                                        Unban
-                                                    </button>
-                                                    :
-                                                    <>
-                                                        {!user.is_admin && (
-                                                            <button onClick={() => action(user, ActionType.ban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-red-400 hover:bg-red-500 focus:outline-none">
-                                                                Ban
+                                            }
+                                        </td>
+                                        <td className="px-4 py-4 text-sm whitespace-nowrap text-center">
+                                            <div>
+                                                <h4 className="text-gray-700">{user.last_name}</h4>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4 space-x-2 text-sm text-right whitespace-nowrap">
+                                            {user.is_banned ?
+                                                <button onClick={() => action(user, ActionType.unban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-emerald-400 hover:bg-emerald-500 focus:outline-none">
+                                                    Unban
+                                                </button>
+                                                :
+                                                <>
+                                                    {!user.is_admin && (
+                                                        <button onClick={() => action(user, ActionType.ban)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-red-400 hover:bg-red-500 focus:outline-none">
+                                                            Ban
+                                                        </button>
+                                                    )}
+                                                    {user.role === "pending" ?
+                                                        <Link to={"/Pending"} className="px-2 py-1.5 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
+                                                            Upgrade requested
+                                                        </Link>
+                                                        :
+                                                        !user.is_admin && (
+                                                            <button onClick={() => action(user, ActionType.upgrade)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
+                                                                Upgrade to Admin
                                                             </button>
-                                                        )}
-                                                        {user.role === "pending" ?
-                                                            <Link to={"/Pending"} className="px-2 py-1.5 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
-                                                                Upgrade requested
-                                                            </Link>
-                                                            :
-                                                            !user.is_admin && (
-                                                                <button onClick={() => action(user, ActionType.upgrade)} className="px-2 py-1 text-white transition-colors duration-200 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none">
-                                                                    Upgrade to Admin
-                                                                </button>
-                                                            )
-                                                        }
-                                                    </>
-                                                }
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {users === null && (
-                                        <tr>
-                                            <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
-                                                Loading users...
-                                            </td>
-                                        </tr>
-                                    )}
-                                    {users && users.length === 0 && (
-                                        <tr>
-                                            <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
-                                                No users found.
-                                            </td>
-                                        </tr>
-                                    )}
+                                                        )
+                                                    }
+                                                </>
+                                            }
+                                        </td>
+                                    </tr>
+                                ))}
+                                {users === null && (
+                                    <tr>
+                                        <td colSpan={6} className="px-4 py-4 text-center text-sm text-gray-500">
+                                            Loading users...
+                                        </td>
+                                    </tr>
+                                )}
+                                {users && users.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} className="px-4 py-4 text-center text-sm text-gray-500">
+                                            No users found.
+                                        </td>
+                                    </tr>
+                                )}
                                 </tbody>
                             </table>
                         </div>
